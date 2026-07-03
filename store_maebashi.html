@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>27PS展示会 店舗別実績レポート｜前橋スズラン</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap');
+  :root{
+    --ink:#1a1a2e; --sub:#5a6473; --line:#e3e7ed; --bg:#EFECE6;
+    --card:#ffffff; --accent:#1f3a5f; --accent2:#2D5A8E;
+    --good:#1f8a5b; --warn:#c8922a; --bad:#c0492f; --barbg:#eef1f5;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Noto Sans JP',sans-serif;color:var(--ink);background:var(--bg);
+    line-height:1.6;font-size:13px;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:920px;margin:0 auto;padding:32px 20px 80px}
+  header.rpt{border-bottom:3px solid var(--accent);padding-bottom:18px;margin-bottom:8px}
+  .eyebrow{font-size:12px;letter-spacing:.12em;color:var(--accent2);font-weight:700}
+  h1{font-size:26px;margin:4px 0 2px;letter-spacing:.01em;font-weight:500}
+  .meta{font-size:12.5px;color:var(--sub)}
+  .badge{display:inline-block;background:var(--accent);color:#fff;font-size:11px;
+    padding:2px 9px;border-radius:11px;font-weight:700;margin-left:6px;vertical-align:2px}
+  section{margin-top:30px}
+  h2{font-size:16px;border-left:5px solid var(--accent);padding-left:10px;margin-bottom:14px;font-weight:700}
+  .note{font-size:11.5px;color:var(--sub);margin-top:-6px;margin-bottom:12px}
+  .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 14px 12px}
+  .kpi .lbl{font-size:11.5px;color:var(--sub);font-weight:600}
+  .kpi .val{font-size:22px;font-weight:700;margin-top:3px;letter-spacing:-.01em}
+  .kpi .unit{font-size:12px;font-weight:600;color:var(--sub);margin-left:2px}
+  .kpi .cmp{font-size:11px;margin-top:3px}
+  .up{color:var(--good)} .down{color:var(--bad)} .mid{color:var(--warn)}
+  table{width:100%;border-collapse:collapse;background:var(--card);
+    border:1px solid var(--line);border-radius:10px;overflow:hidden;font-size:13px}
+  th,td{padding:9px 10px;text-align:right;border-bottom:1px solid var(--line)}
+  th:first-child,td:first-child{text-align:left}
+  thead th{background:var(--accent);color:#fff;font-weight:700;font-size:12px}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr.total{background:#eef2f7;font-weight:700}
+  tbody tr.hl td{background:#fbf6ea}
+  .pos{color:var(--good);font-weight:700}.neg{color:var(--bad);font-weight:700}
+  .twocol{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px}
+  .panel h3{font-size:13.5px;margin-bottom:10px;color:var(--accent)}
+  .mini{font-size:12.5px}
+  .tag{display:inline-block;font-size:10.5px;padding:1px 7px;border-radius:10px;font-weight:700}
+  .tag.g{background:#e3f3ea;color:var(--good)} .tag.w{background:#fdf2dd;color:var(--warn)}
+  .tag.b{background:#fae6e0;color:var(--bad)}
+  .insight{background:#fff;border:1px solid var(--line);border-left:5px solid var(--accent);
+    border-radius:8px;padding:14px 16px;font-size:13px;margin-top:14px}
+  .insight strong{color:var(--accent)}
+  .pn{font-family:ui-monospace,Menlo,monospace;font-size:10.5px;color:var(--sub)}
+  /* donut */
+  .donut-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .donut-card{background:var(--card);border:1px solid var(--line);border-radius:10px;
+    padding:16px;display:flex;flex-direction:column;align-items:center;gap:8px}
+  .donut-card.avg{border:2px solid var(--accent)}
+  .donut-ttl{font-size:13px;font-weight:700}
+  .svg-wrap{position:relative;width:200px;height:200px}
+  .center-info{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+    text-align:center;pointer-events:none;width:100px}
+  .ci-rate{font-size:24px;font-weight:500;line-height:1}
+  .ci-lbl{font-size:10px;color:#aaa;margin-top:2px}
+  .ci-vals{font-size:10px;color:#888;margin-top:5px;line-height:1.7}
+  .leg-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px 10px;width:100%;margin-top:4px}
+  .leg-item{display:flex;align-items:flex-start;gap:4px;font-size:10px;color:#666;line-height:1.4}
+  .leg-sq{width:8px;height:8px;border-radius:2px;flex-shrink:0;margin-top:3px}
+  .donut-legendbar{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px}
+  .ltag{color:#fff;padding:3px 10px;border-radius:3px;font-size:.72rem;font-weight:500}
+  /* matrix */
+  .matrix td,.matrix th{padding:7px 5px;font-size:11px;text-align:center}
+  .matrix th:first-child,.matrix td:first-child{text-align:left}
+  .mx{display:inline-block;width:100%;border-radius:3px;padding:2px 0;font-weight:600}
+  /* lorenz */
+  .lorenz-wrap{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px}
+  /* brand metric strip */
+  .bmetrics{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:6px 0 12px}
+  .bm{background:#f5f2ec;border-radius:6px;padding:7px 9px}
+  .bm .bm-l{font-size:10px;color:var(--sub);font-weight:600}
+  .bm .bm-cmp{display:flex;justify-content:space-between;align-items:baseline;margin-top:3px}
+  .bm .bm-store{font-size:15px;font-weight:800;color:var(--ink)}
+  .bm .bm-avg{font-size:10.5px;color:#999}
+  .bm .bm-diff{font-size:10px;font-weight:700;margin-top:1px}
+  footer{margin-top:40px;font-size:11px;color:var(--sub);border-top:1px solid var(--line);padding-top:14px}
+  @media(max-width:760px){.cards{grid-template-columns:repeat(2,1fr)}.twocol,.donut-row{grid-template-columns:1fr}}
+  @media print{body{background:#fff}.wrap{max-width:none}}
+</style></head><body>
+<div class="wrap">
+<header class="rpt">
+  <div class="eyebrow">27PS展示会｜26PS実績ベース 店舗別分析レポート</div>
+  <h1>前橋スズラン<span class="badge">グループA</span></h1>
+  <div class="meta">分析期間：26PS（2025年12月〜2026年2月）／単位：千円　※発注=訂正版発注明細、売上=FCプロパー実績</div>
+</header>
+
+<section>
+  <h2>サマリKPI</h2>
+  <div class="cards">
+    <div class="kpi"><div class="lbl">26PS発注額</div><div class="val">5,308<span class="unit">千円</span></div><div class="cmp" style="color:var(--sub)">8ブランド計</div></div>
+    <div class="kpi"><div class="lbl">店頭売上高（プロパー）</div><div class="val">6,589<span class="unit">千円</span></div><div class="cmp" style="color:var(--sub)">SALE込合計 11,727</div></div>
+    <div class="kpi"><div class="lbl">消化率（全体）</div><div class="val">35.2<span class="unit">%</span></div><div class="cmp mid">FC全体44.6%をやや下回る</div></div>
+    <div class="kpi"><div class="lbl">在庫倍率</div><div class="val">1.71</div><div class="cmp up">接客に十分な在庫（カード）を確保・適正〜やや多め</div></div>
+    <div class="kpi"><div class="lbl">プロパー比</div><div class="val">56.2<span class="unit">%</span></div><div class="cmp down">FC平均63.1%未満</div></div>
+    <div class="kpi"><div class="lbl">セール比</div><div class="val">43.8<span class="unit">%</span></div><div class="cmp down">値引依存やや高</div></div>
+    <div class="kpi"><div class="lbl">全社追随率</div><div class="val">42.0<span class="unit">%</span></div><div class="cmp mid">FC17店中14位（平均46.0%）</div></div>
+    <div class="kpi"><div class="lbl">委託売上シェア</div><div class="val">3.1<span class="unit">%</span></div><div class="cmp mid">委託合計359千円／FC平均6.0%</div></div>
+  </div>
+</section>
+
+<section>
+  <h2>① ブランド別 消化率（FC全店平均 対比）</h2>
+  <p class="note">消化率＝26PS売上実績 ÷ 26PS発注実績（訂正版発注明細ベース）</p>
+  <table><thead><tr><th>ブランド</th><th>FC平均 消化率</th><th>前橋スズラン 発注</th><th>前橋スズラン 売上</th><th>前橋スズラン 消化率</th><th>差</th></tr></thead>
+  <tbody><tr><td>Ballsey</td><td>42.4%</td><td>2,337</td><td>1,093</td><td><span class="">46.8%</span></td><td class="pos">+4.4</td></tr><tr><td>MACPHEE</td><td>51.9%</td><td>1,263</td><td>401</td><td><span class="neg">31.7%</span></td><td class="neg">-20.2</td></tr><tr><td>collection</td><td>45.7%</td><td>520</td><td>139</td><td><span class="neg">26.7%</span></td><td class="neg">-19.0</td></tr><tr><td>collection⑭</td><td>30.8%</td><td>998</td><td>190</td><td><span class="neg">19.0%</span></td><td class="neg">-11.8</td></tr><tr><td>DES PRES</td><td>53.6%</td><td>―</td><td>―</td><td>―</td><td>―</td></tr><tr><td>GALERIE VIE</td><td>49.8%</td><td>―</td><td>―</td><td>―</td><td>―</td></tr><tr><td>SOULEIADO wear</td><td>44.6%</td><td>―</td><td>―</td><td>―</td><td>―</td></tr><tr><td>SOULEIADO goods</td><td>52.4%</td><td>―</td><td>―</td><td>―</td><td>―</td></tr><tr class="total"><td>合計</td><td>44.6%</td><td>5,308</td><td>1,866</td><td>35.2%</td><td class="neg">-9.4</td></tr></tbody></table>
+</section>
+
+<section>
+  <h2>② 発注シェア vs 売上シェア（ドーナツ対比）</h2>
+  <p class="note">外環＝売上シェア（FCプロパー実績）／内環＝26PS発注シェア　｜　円中央＝消化率・発注・売上（千円）。左＝前橋スズラン／右＝FC全店平均。</p>
+  <div class="donut-legendbar" id="legend-bar"></div>
+  <div class="donut-row" id="donut-host"></div>
+</section>
+
+<section>
+  <h2>③ 売上構成比（セール・プロパー）</h2>
+  <table><thead><tr><th>区分</th><th>前橋スズラン 売上</th><th>前橋スズラン 構成比</th><th>FC平均 構成比</th></tr></thead>
+  <tbody>
+    <tr><td>プロパー</td><td>6,589</td><td class="">56.2%</td><td>63.1%</td></tr>
+    <tr><td>セール</td><td>5,138</td><td>43.8%</td><td>36.9%</td></tr>
+    <tr class="total"><td>合計</td><td>11,727</td><td>100%</td><td>100%</td></tr>
+  </tbody></table>
+</section>
+
+<section>
+  <h2>④ 発注品番数マトリックス（ブランド × アイテム）</h2>
+  <p class="note">セル＝前橋スズランの発注品番数／展示会出品品番数（母数）。色は発注消化度（緑=発注率高、赤=0）。母数は27PS展示会237品番ベース。グループA対象外ブランドは「－」。</p>
+  <div style="overflow-x:auto"><table class="matrix" id="matrix-tbl"></table></div>
+</section>
+
+<section>
+  <h2>⑤ ブランド別 売上TOP10品番（前橋スズラン vs 全店ランキング）</h2>
+  <p class="note">発注額列＝前橋スズランが26PS展示会で発注した金額（千円）。売れ筋TOP10のうち何品番を発注できていたか（＝目利き精度）を可視化。「―」＝当該品番を発注せず。カード上部＝追随率・TOP10集中度（前橋スズラン vs 全店平均）。黄色＝両TOP10共通品番。</p>
+  <div id="top10-host"></div>
+  <div class="lorenz-wrap" style="margin-top:16px">
+    <h3 style="font-size:13.5px;color:var(--accent);margin-bottom:6px">ローレンツ曲線（前橋スズラン 品番別売上の集中度）</h3>
+    <p class="note">横軸＝品番累積%（売上降順）／縦軸＝売上累積%。45°線から離れるほど一部品番に売上集中。</p>
+    <svg id="lorenz" viewBox="0 0 420 300" width="100%" style="max-width:480px"></svg>
+    <p class="mini" style="color:var(--sub)">上位約20%の品番で売上の<strong style="color:var(--accent)">約39%</strong>を構成。</p>
+  </div>
+</section>
+
+<section>
+  <h2>⑥ 発注品番 ワースト20（前橋スズラン・消化不振）</h2>
+  <p class="note">前橋スズランが26PS発注したが売上実績が低かった品番（売上昇順）。27PS発注では再検討・除外候補。単位:千円。</p>
+  <table><thead><tr><th>#</th><th>ブランド</th><th>商品名</th><th>品番</th><th>発注</th><th>売上</th><th>消化率</th></tr></thead>
+  <tbody><tr><td>1</td><td>col⑭</td><td>ＧＯＡＴ ＳＵＡＤＥクルトＣ／Ｄ</td><td class="pn">14076107101</td><td>200</td><td>0</td><td class="neg">0.0%</td></tr><tr><td>2</td><td>col⑭</td><td>コットンダンボールニットフーデットジレ</td><td class="pn">14076107108</td><td>112</td><td>0</td><td class="neg">0.0%</td></tr><tr><td>3</td><td>MACPHEE</td><td>ＧＩＺＡ ＣＡＢＬＥクルーネックＣ／Ｄ</td><td class="pn">12025402008</td><td>92</td><td>0</td><td class="neg">0.0%</td></tr><tr><td>4</td><td>Ballsey</td><td>ボタニカルＪＱトラペーズコート</td><td class="pn">11086108002</td><td>90</td><td>0</td><td class="neg">0.0%</td></tr><tr><td>5</td><td>MACPHEE</td><td>ＳＨＥＥＰ ＳＵＥＤＥコンパクトハリントンＪＫ</td><td class="pn">12076107101</td><td>86</td><td>0</td><td class="neg">0.0%</td></tr><tr><td>6</td><td>collection</td><td>ストレッチブロードドルマンパフＢＬ</td><td class="pn">13016101007</td><td>81</td><td>0</td><td class="neg">0.0%</td></tr><tr><td>7</td><td>col⑭</td><td>ＧＯＡＴ ＳＵＡＤＥチュニックジレ</td><td class="pn">14076107102</td><td>80</td><td>0</td><td class="neg">0.0%</td></tr><tr><td>8</td><td>Ballsey</td><td>プリマベーラデシンスキッパータックＢＬ</td><td class="pn">11016101002</td><td>76</td><td>0</td><td class="neg">0.0%</td></tr><tr><td>9</td><td>Ballsey</td><td>グロスアムンゼンテントラインＢＬ</td><td class="pn">11016101009</td><td>72</td><td>0</td><td class="neg">0.0%</td></tr><tr><td>10</td><td>collection</td><td>シアーハウンドトゥースピンタックブザムシャツ</td><td class="pn">13016101003</td><td>66</td><td>0</td><td class="neg">0.0%</td></tr><tr><td>11</td><td>MACPHEE</td><td>ＴＨＲＥＡＤ ＪＱＶネックＪＫ</td><td class="pn">12026102101</td><td>64</td><td>0</td><td class="neg">0.0%</td></tr><tr><td>12</td><td>Ballsey</td><td>プレリーＴＷＥＥＤクロップドクルーＪＫ</td><td class="pn">11076107003</td><td>60</td><td>0</td><td class="neg">0.0%</td></tr><tr><td>13</td><td>MACPHEE</td><td>HYBRID COTTON TWEEDYニットブルゾン</td><td class="pn">12026102104</td><td>60</td><td>0</td><td class="neg">0.0%</td></tr><tr><td>14</td><td>col⑭</td><td>グログランドットロンドゥールコート</td><td class="pn">14086108002</td><td>60</td><td>0</td><td class="neg">0.0%</td></tr><tr><td>15</td><td>col⑭</td><td>ホロウファンシートリミングＪＫ</td><td class="pn">14076107005</td><td>58</td><td>0</td><td class="neg">0.0%</td></tr><tr><td>16</td><td>col⑭</td><td>シルバーオーガンジースィングプリーツＳＫ</td><td class="pn">14056105101</td><td>58</td><td>0</td><td class="neg">0.0%</td></tr><tr><td>17</td><td>Ballsey</td><td>ＭＩＸツイードベスト</td><td class="pn">11026102007</td><td>56</td><td>0</td><td class="neg">0.0%</td></tr><tr><td>18</td><td>Ballsey</td><td>アラベスクＪＱサーキュラーＳＫ</td><td class="pn">11056105041</td><td>54</td><td>0</td><td class="neg">0.0%</td></tr><tr><td>19</td><td>Ballsey</td><td>フラワーコードレースシャツカラーＢＬ</td><td class="pn">11016101042</td><td>52</td><td>0</td><td class="neg">0.0%</td></tr><tr><td>20</td><td>75</td><td>ＰＡＶＯ／ＬＡ ＦＬＥＵＲバンドカラーフリルシャツ</td><td class="pn">75016101102</td><td>52</td><td>0</td><td class="neg">0.0%</td></tr></tbody></table>
+</section>
+
+<footer>本レポートは26PS実績（第3四半期FCプロパー売上・訂正版発注明細・在庫表・品番集中度/追随度・予算シミュ委託）に基づく分析です。｜ データソース：27PS予算シミュレーション用実績分析／26PS発注⇔売上突合／ブランド別品番集中度／26PS展示会発注率／各店予算シミュ　｜　単位：千円</footer>
+</div>
+
+<script>
+const D={"DONUT": [{"ttl": "前橋スズラン", "avg": false, "rate": 35.2, "order": 5308, "sales": 1866, "orderR": [44.0, 23.8, 9.8, 18.8, 0.0, 0.0, 2.8, 0.8], "salesR": [58.6, 21.5, 7.4, 10.2, 0.0, 0.0, 1.2, 1.1]}, {"ttl": "FC全店平均", "avg": true, "rate": 44.6, "order": 126273, "sales": 56354, "orderR": [40.9, 14.4, 15.6, 9.3, 1.5, 16.3, 1.9, 0.2], "salesR": [38.8, 16.8, 16.0, 6.4, 1.8, 18.2, 1.9, 0.2]}], "CROSS": {"Ballsey|シャツ": 12, "Ballsey|ニット": 10, "Ballsey|カットソー": 1, "Ballsey|パンツ": 4, "Ballsey|スカート": 3, "Ballsey|ワンピース": 0, "Ballsey|ジャケット": 8, "Ballsey|アウター": 2, "MACPHEE|シャツ": 2, "MACPHEE|ニット": 15, "MACPHEE|カットソー": 1, "MACPHEE|パンツ": 1, "MACPHEE|スカート": 0, "MACPHEE|ワンピース": 1, "MACPHEE|ジャケット": 2, "MACPHEE|アウター": 0, "collection|シャツ": 10, "collection|ニット": 0, "collection|カットソー": 0, "collection|パンツ": 0, "collection|スカート": 0, "collection|ワンピース": 0, "collection|ジャケット": 0, "collection|アウター": 0, "col⑭|シャツ": 1, "col⑭|ニット": 0, "col⑭|カットソー": 1, "col⑭|パンツ": 1, "col⑭|スカート": 1, "col⑭|ワンピース": 0, "col⑭|ジャケット": 6, "col⑭|アウター": 1, "GALERIE VIE|シャツ": 0, "GALERIE VIE|ニット": 0, "GALERIE VIE|カットソー": 0, "GALERIE VIE|パンツ": 0, "GALERIE VIE|スカート": 0, "GALERIE VIE|ワンピース": 0, "GALERIE VIE|ジャケット": 0, "GALERIE VIE|アウター": 0}, "EX_CROSS": {"Ballsey|シャツ": 22, "Ballsey|ニット": 17, "Ballsey|カットソー": 2, "Ballsey|パンツ": 12, "Ballsey|スカート": 8, "Ballsey|ワンピース": 8, "Ballsey|ジャケット": 15, "Ballsey|アウター": 3, "MACPHEE|シャツ": 2, "MACPHEE|ニット": 16, "MACPHEE|カットソー": 2, "MACPHEE|パンツ": 1, "MACPHEE|スカート": 2, "MACPHEE|ワンピース": 1, "MACPHEE|ジャケット": 4, "MACPHEE|アウター": 1, "collection|シャツ": 11, "collection|ニット": 0, "collection|カットソー": 0, "collection|パンツ": 6, "collection|スカート": 2, "collection|ワンピース": 1, "collection|ジャケット": 10, "collection|アウター": 1, "col⑭|シャツ": 2, "col⑭|ニット": 0, "col⑭|カットソー": 1, "col⑭|パンツ": 2, "col⑭|スカート": 3, "col⑭|ワンピース": 1, "col⑭|ジャケット": 13, "col⑭|アウター": 3, "GALERIE VIE|シャツ": 2, "GALERIE VIE|ニット": 17, "GALERIE VIE|カットソー": 2, "GALERIE VIE|パンツ": 2, "GALERIE VIE|スカート": 0, "GALERIE VIE|ワンピース": 4, "GALERIE VIE|ジャケット": 8, "GALERIE VIE|アウター": 7}, "EX_BRTOT": {"MACPHEE": 29, "GALERIE VIE": 42, "Ballsey": 87, "col⑭": 25, "collection": 31}, "EX_ITTOT": {"ニット": 50, "ワンピース": 15, "スカート": 15, "シャツ": 39, "ジャケット": 50, "パンツ": 23, "アウター": 15, "カットソー": 7}, "GBRANDS": ["11", "12", "13", "14", "75", "76"], "GBASE": 184, "CTOP": {"Ballsey": [["11083408301", "ﾌﾟﾚﾐｱﾑﾘﾊﾞｰ", 179], ["11085408931", "KATE", 160], ["11026102010", "ﾓｽｽﾃｯﾁPO", 152], ["11081508301", "ﾘﾊﾞｰﾉｰｶﾗｰ", 150], ["11025402404", "ﾘﾝｸｽｸﾙｰPO", 120], ["11016101003", "ﾌﾟﾘﾏﾍﾞｰﾗﾀｲ", 114], ["11031403101", "ｺｯﾄﾝｼﾙｸﾀｰﾄﾙ", 108], ["11076207101", "ﾗｲﾄﾊﾟｳﾀﾞﾘｰ", 90], ["11086108001", "ﾘﾊﾞｰｷﾙﾃｨﾝｸﾞ", 90], ["11045104035", "ﾗｲﾄﾌｧﾝｼｰTWD", 78]], "MACPHEE": [["12033403301", "ｳｰﾙﾘﾌﾞﾊｲﾈｯｸ", 182], ["12041004001", "ﾃﾞﾆﾑﾜｲﾄﾞ", 133], ["12085408202", "ﾒﾙﾄﾝPｺｰﾄ", 126], ["12085408302", "BORDING", 100], ["12025402205", "NZ LAMBS CD", 85], ["12014401101", "M SHIRTS", 84], ["12085408303", "COLOR NEP", 80], ["12025402206", "NZ LAMBS PO", 64], ["12045404301", "FLANNEL", 63], ["12024402705", "ﾗﾑｶｼVﾈｯｸ", 60]], "collection": [["13082408304", "ﾋﾟｭｱｶｼﾐﾔ", 110], ["13074107351", "SPｶﾗｰﾚｽ", 43], ["13015401207", "ｳｫｯｼｬﾌﾞﾙｼﾙｸ", 36], ["13015401402", "200/2ｽｰﾋﾟﾏﾌ", 33], ["13016101010", "ｳｫｯｼｬﾌﾞﾙｻﾃﾝ", 33], ["13045404302", "ﾏﾙﾁｸﾞﾚﾝ", 26], ["13016201109", "ﾍﾟﾀﾙﾌﾗﾜｰ", 22], ["13016101005", "ｵｰｷｯﾄﾞﾌﾗﾜｰ", 21], ["13016101009", "ｺｯｸｽｺﾌﾞﾌﾗﾜｰ", 21], ["13044104351", "SPﾃｰﾊﾟｰﾄﾞ", 21]], "col⑭": [["14085408302", "ｴｸﾗﾊｳﾝﾄﾞﾄｩｰ", 120], ["14085408401", "ｶﾗｰﾈｯﾌﾟﾁｪｯｸ", 70], ["14076107001", "CSｸﾞﾛｸﾞﾗﾝ", 58], ["14076107002", "ｸﾞﾛｸﾞﾗﾝﾄﾞｯﾄ", 58], ["14054405003", "ｼﾙｸﾀﾌﾀ", 52], ["14075407304", "ﾌｧﾝｼｰﾆｯﾄ", 42], ["14046104001", "ｼﾙｸﾄﾞｯﾄPT", 30], ["14055405402", "ｶﾗｰﾈｯﾌﾟﾁｪｯｸ", 30], ["14016101001", "ﾚｼﾞｪﾓｰﾙｽｷﾝ", 27], ["14034403001", "ﾌﾗｲｽﾎﾞｰﾀﾞｰ", 17]], "DES PRES": [], "GALERIE VIE": []}, "ZEN": {"Ballsey": [["11083408301", "ﾌﾟﾚﾐｱﾑﾘﾊﾞｰ", 69462], ["11081508301", "ﾘﾊﾞｰﾉｰｶﾗｰ", 60797], ["11085408401", "ｳｰﾙｶｼﾐﾔﾋﾞｰﾊ", 56464], ["11041404203", "2WAYｽﾄﾚｯﾁﾜｲ", 55860], ["11082408401", "ｳｰﾙｶｼﾐﾔﾘﾊﾞｰ", 50312], ["11043404301", "ﾒﾗﾝｼﾞｶﾙｾﾞ", 29250], ["11075107034", "ﾗﾒMIXﾂｲｰﾄﾞ", 28294], ["11022402703", "ﾌﾞｰｸﾚｸﾙｰC/D", 22480], ["11015101003", "2WAYｽﾄﾚｯﾁ", 21468], ["11031403101", "ｺｯﾄﾝｼﾙｸﾀｰﾄﾙ", 20134]], "MACPHEE": [["12025402206", "NZ LAMBS PO", 36305], ["12024402405", "L.CASHｸﾙｰ", 25338], ["12085408302", "BORDING", 20935], ["12025402702", "FINE LAMBS", 17736], ["12071007002", "Vｷﾞｬﾊﾞ WJK", 16967], ["12085408701", "WV Pｺｰﾄ", 16815], ["12025402205", "NZ LAMBS CD", 15327], ["12014401101", "M SHIRTS", 14696], ["12041004001", "ﾃﾞﾆﾑﾜｲﾄﾞ", 14544], ["12024402705", "ﾗﾑｶｼVﾈｯｸ", 14408]], "collection": [["13082408304", "ﾋﾟｭｱｶｼﾐﾔ", 46228], ["13080508301", "ｽｰﾊﾟｰｶｼﾐﾔ", 34209], ["13085408901", "ｳｪｰﾋﾞｰｶｼﾐﾔ", 24556], ["13085408304", "ｽｰﾊﾟｰﾀﾞﾌﾞﾙﾌ", 18813], ["13076107002", "ﾌﾗｯﾄﾃｰﾌﾟ", 17215], ["13083108001", "ｶﾊﾞｰﾄｸﾛｽ", 15051], ["13073107351", "SPﾀﾞﾌﾞﾙ", 14978], ["13015101002", "ｳｫｯｼｬﾌﾞﾙｻﾃﾝ", 14025], ["13074407357", "ﾓｸﾛﾃﾞｨ", 13477], ["13074107352", "SPｼﾝｸﾞﾙﾉｯﾁ", 12650]], "col⑭": [["14075407401", "ｸﾛｯｼｭｳｰﾙ", 7244], ["14085408302", "ｴｸﾗﾊｳﾝﾄﾞﾄｩｰ", 6720], ["14085408301", "ｱﾙﾊﾟｶﾓｱﾙｰ", 5095], ["14076107005", "ﾎﾛｳﾌｧﾝｼｰ", 4756], ["14076107004", "ﾊﾟﾝｿｯﾃｨ", 4600], ["14075407051", "ﾍﾞｼﾞﾀﾌﾞﾙﾚｻﾞ", 3735], ["14086108002", "ｸﾞﾛｸﾞﾗﾝﾄﾞｯﾄ", 3114], ["14076107003", "ﾊﾟﾝｿｯﾃｨ", 3060], ["14075407402", "ｸﾞﾘﾊｳﾝﾄﾞﾄｩｰ", 2964], ["14076107006", "ﾎﾛｳﾌｧﾝｼｰ", 2834]], "DES PRES": [["22084408301", "Wﾌｪｲｽｼｮｰﾄ", 22700], ["22044404213", "ﾆｯﾄｺﾝﾋﾞﾄﾞﾛｽ", 16617], ["22085408307", "Wﾓｯｻﾌﾚｱﾐﾃﾞｨ", 15770], ["22043404302", "ﾌﾗﾝﾈﾙｾﾐﾜｲﾄﾞ", 14998], ["22034403213", "ﾆｯﾄｺﾝﾋﾞﾀｰﾄﾙ", 14269], ["22045404005", "Wｸﾛｽﾘﾗｯｸｽ", 11600], ["22034403214", "ﾆｯﾄｺﾝﾋﾞｸﾙｰ", 11281], ["22025402303", "FOXCASH VPO", 8713], ["22025402321", "WﾍﾞｼｯｸRﾀｰﾄﾙ", 8566], ["22025402302", "FOXCASHｸﾙPO", 8397]], "GALERIE VIE": [["23085408004", "WﾌｪｲｽﾄﾚﾝﾁS", 31395], ["23025402302", "Fｳｰﾚﾝ ｸﾙｰ", 26751], ["23085408005", "WﾌｪｲｽﾄﾚﾝﾁL", 22068], ["23025402304", "Fｳｰﾚﾝ ﾀｰﾄﾙ", 19663], ["23085408311", "WOWSWﾌｪｲｽP", 15148], ["23025402303", "Fｳｰﾚﾝ Vﾌﾟﾙ", 13533], ["23025402109", "ﾌﾟﾙﾐｴR ﾀｰﾄﾙ", 13423], ["23045404201", "ﾗｲﾄﾌﾗﾉｽﾄﾚｯﾁ", 13318], ["23045404202", "ｼｬﾝｶｰﾙｺｰﾙ", 13137], ["23025402107", "ﾌﾟﾙﾐｴR ﾋﾞﾙﾄ", 11346]]}, "ORDER_AMT": {"Ballsey": {"11083408301": null, "11085408931": null, "11026102010": 171, "11081508301": null, "11025402404": null, "11016101003": 95, "11031403101": null, "11076207101": null, "11086108001": 90, "11045104035": 104}, "MACPHEE": {"12033403301": null, "12041004001": null, "12085408202": null, "12085408302": null, "12025402205": null, "12014401101": null, "12085408303": null, "12025402206": null, "12045404301": null, "12024402705": null}, "collection": {"13082408304": null, "13074107351": null, "13015401207": null, "13015401402": null, "13016101010": 66, "13045404302": null, "13016201109": null, "13016101005": 84, "13016101009": 42, "13044104351": null}, "col⑭": {"14085408302": null, "14085408401": null, "14076107001": 116, "14076107002": 58, "14054405003": null, "14075407304": null, "14046104001": 60, "14055405402": null, "14016101001": 162, "14034403001": 34}, "DES PRES": {}, "GALERIE VIE": {}}, "BM": {"Ballsey": [40.0, 46.7, 43.2, 41.5, 53], "MACPHEE": [66.7, 46.3, 39.6, 34.7, 57], "collection": [20.0, 36.6, 100, 42.7, 10], "col⑭": [30.0, 33.0, 100, 35.1, 10], "DES PRES": [0, 12.8, 0, 40.4, 0], "GALERIE VIE": [0, 25.9, 0, 32.1, 0]}, "LORENZ": [[0, 0], [2.5, 5.9], [5.0, 11.7], [7.5, 16.9], [10.0, 21.8], [12.5, 26.7], [15.0, 31.0], [17.5, 35.0], [20.0, 38.9], [22.5, 42.8], [25.0, 46.5], [27.5, 50.1], [30.0, 53.6], [32.5, 56.8], [35.0, 59.7], [37.5, 62.6], [40.0, 65.4], [42.5, 68.1], [45.0, 70.7], [47.5, 73.2], [50.0, 75.5], [52.5, 77.6], [55.0, 79.6], [57.5, 81.5], [60.0, 83.4], [62.5, 85.3], [65.0, 87.0], [67.5, 88.4], [70.0, 89.7], [72.5, 90.9], [75.0, 92.0], [77.5, 93.0], [80.0, 94.0], [82.5, 95.0], [85.0, 95.9], [87.5, 96.7], [90.0, 97.4], [92.5, 98.1], [95.0, 98.8], [97.5, 99.4], [100.0, 100.0]], "TOP20": 39, "DISP": "前橋スズラン"};
+const COLORS=["#2D5A8E","#5B8DB8","#8BAFD4","#B5CDE4","#C84B31","#E8956D","#7BAE7F","#C9B86A"];
+const BNAMES=["Ballsey","MACPHEE","collection","col⑭","DES PRES","GV","SOU.w","SOU.g"];
+const legBar=document.getElementById('legend-bar');
+BNAMES.slice(0,6).forEach((n,i)=>{const s=document.createElement('span');s.className='ltag';s.style.background=COLORS[i];s.textContent=n;legBar.appendChild(s);});
+function drawDonut(svgEl,orderR,salesR){
+  const cx=100,cy=100,rOuter=92,rMid=72,rInner=54,gap=1.5,NS='http://www.w3.org/2000/svg';
+  function seg(p,rO,rI,op){let start=-90;p.forEach((pct,i)=>{const sweep=pct/100*360;if(pct>0){const end=start+sweep-gap;const s=start*Math.PI/180,e=end*Math.PI/180;const large=sweep-gap>180?1:0;const x1=cx+rO*Math.cos(s),y1=cy+rO*Math.sin(s),x2=cx+rO*Math.cos(e),y2=cy+rO*Math.sin(e),x3=cx+rI*Math.cos(e),y3=cy+rI*Math.sin(e),x4=cx+rI*Math.cos(s),y4=cy+rI*Math.sin(s);const pa=document.createElementNS(NS,'path');pa.setAttribute('d',`M${x1} ${y1}A${rO} ${rO} 0 ${large} 1 ${x2} ${y2}L${x3} ${y3}A${rI} ${rI} 0 ${large} 0 ${x4} ${y4}Z`);pa.setAttribute('fill',COLORS[i]);pa.setAttribute('opacity',op);svgEl.appendChild(pa);}start+=sweep;});}
+  seg(salesR,rOuter,rMid+1,'0.93');seg(orderR,rMid-1,rInner,'0.93');
+  const sep=document.createElementNS(NS,'circle');sep.setAttribute('cx',cx);sep.setAttribute('cy',cy);sep.setAttribute('r',rMid);sep.setAttribute('fill','none');sep.setAttribute('stroke','#fff');sep.setAttribute('stroke-width','2.5');svgEl.appendChild(sep);
+  function lbl(t,r,a){const an=a*Math.PI/180,tx=document.createElementNS(NS,'text');tx.setAttribute('x',cx+r*Math.cos(an));tx.setAttribute('y',cy+r*Math.sin(an)+4);tx.setAttribute('text-anchor','middle');tx.setAttribute('font-size','10');tx.setAttribute('font-weight','500');tx.setAttribute('fill','#fff');tx.textContent=t;svgEl.appendChild(tx);}
+  lbl('売上',(rOuter+rMid)/2,-68);lbl('発注',(rMid+rInner)/2,-68);
+}
+const dhost=document.getElementById('donut-host');
+D.DONUT.forEach(dd=>{
+  const card=document.createElement('div');card.className='donut-card'+(dd.avg?' avg':'');
+  card.innerHTML=`<div class="donut-ttl">${dd.ttl}</div><div class="svg-wrap"><svg width="200" height="200" viewBox="0 0 200 200"></svg><div class="center-info"><div class="ci-rate">${dd.rate}%</div><div class="ci-lbl">消化率</div><div class="ci-vals">発注 ${dd.order.toLocaleString()}<br>売上 ${dd.sales.toLocaleString()}<br><span style="font-size:9px">千円</span></div></div></div><div class="leg-grid"></div>`;
+  drawDonut(card.querySelector('svg'),dd.orderR,dd.salesR);
+  const lg=card.querySelector('.leg-grid');
+  BNAMES.slice(0,6).forEach((n,i)=>{const s=dd.salesR[i],o=dd.orderR[i];if(s<=0&&o<=0)return;const div=document.createElement('div');div.className='leg-item';div.innerHTML=`<span class="leg-sq" style="background:${COLORS[i]}"></span><span>${n}<br><span style="font-size:9px;color:#aaa">売${s}% 発${o}%</span></span>`;lg.appendChild(div);});
+  dhost.appendChild(card);
+});
+
+// matrix
+const MB=["Ballsey","MACPHEE","collection","col⑭","GALERIE VIE"];
+const MI=["シャツ","ニット","カットソー","パンツ","スカート","ワンピース","ジャケット","アウター"];
+const BRCODE={"Ballsey":"11","MACPHEE":"12","collection":"13","col⑭":"14","GALERIE VIE":"23"};
+function cstyle(o,b){if(b===0)return['#f2f2f2','#bbb'];const r=o/b;if(o===0)return['#fae6e022','#c0492f'];if(r>=0.75)return['#1f8a5b33','#1f8a5b'];if(r>=0.5)return['#5B8DB833','#2D5A8E'];if(r>=0.3)return['#fdf2dd','#c8922a'];return['#f4f6f8','#3a3a3a'];}
+const mt=document.getElementById('matrix-tbl');
+let mh='<thead><tr><th>ブランド＼アイテム</th>'+MI.map(i=>`<th>${i}</th>`).join('')+'<th>計</th></tr></thead><tbody>';
+let itO=[0,0,0,0,0,0,0,0],itB=[0,0,0,0,0,0,0,0],totO=0,totB=0;
+MB.forEach(b=>{
+  const inGroup=D.GBRANDS.includes(BRCODE[b]);
+  mh+=`<tr><td>${b}</td>`;let bo=0,bb=0;
+  MI.forEach((it,i)=>{
+    const o=D.CROSS[b+'|'+it]||0; const base=inGroup?(D.EX_CROSS[b+'|'+it]||0):0;
+    const [bg,fg]=cstyle(o,base);const txt=(!inGroup||base===0)?'−':`${o}/${base}`;
+    mh+=`<td><span class="mx" style="background:${bg};color:${fg}">${txt}</span></td>`;
+    if(inGroup){bo+=o;bb+=base;itO[i]+=o;itB[i]+=base;}
+  });
+  mh+=`<td style="font-weight:700">${inGroup?bo+'/'+bb:'−'}</td></tr>`;
+  if(inGroup){totO+=bo;totB+=bb;}
+});
+mh+=`<tr class="total"><td>アイテム計</td>`+MI.map((it,i)=>`<td>${itO[i]}/${itB[i]}</td>`).join('')+`<td>${totO}/${totB}</td></tr></tbody>`;
+mt.innerHTML=mh;
+
+// top10 per brand
+(function(){
+  const host=document.getElementById('top10-host');
+  function diff(a,b){const dd=Math.round((a-b)*10)/10;const cls=dd>0?'pos':(dd<0?'neg':'');return `<span class="${cls}">${dd>0?'+':''}${dd}pt</span>`;}
+  Object.keys(D.CTOP).forEach(bn=>{
+    const ct=D.CTOP[bn]||[],zn=D.ZEN[bn]||[],amt=D.ORDER_AMT[bn]||{},m=D.BM[bn]||[0,0,0,0,0];
+    if(ct.length===0)return;  // 当該店で売上実績のないブランドはカードを表示しない
+    const hitCnt=Object.values(amt).filter(v=>v!=null).length;
+    const chibaPN=new Set(ct.map(x=>x[0])),zenPN=new Set(zn.map(x=>x[0]));
+    const metrics=`<div class="bmetrics">
+      <div class="bm"><div class="bm-l">全社追随率</div><div class="bm-cmp"><span class="bm-store">${m[0]}%</span><span class="bm-avg">全店${m[1]}%</span></div><div class="bm-diff">${diff(m[0],m[1])}</div></div>
+      <div class="bm"><div class="bm-l">TOP10集中度</div><div class="bm-cmp"><span class="bm-store">${m[2]}%</span><span class="bm-avg">全店${m[3]}%</span></div><div class="bm-diff">${diff(m[2],m[3])}</div></div>
+      <div class="bm"><div class="bm-l">取扱品番数</div><div class="bm-cmp"><span class="bm-store">${m[4]}</span><span class="bm-avg">品番</span></div><div class="bm-diff" style="color:var(--sub)">TOP50で概ね全売上</div></div>
+      <div class="bm"><div class="bm-l">TOP10 発注的中</div><div class="bm-cmp"><span class="bm-store">${hitCnt}</span><span class="bm-avg">/10品番</span></div><div class="bm-diff" style="color:${hitCnt>=3?'var(--good)':(hitCnt===0?'var(--bad)':'var(--warn)')}">${hitCnt===0?'売れ筋を発注せず':hitCnt>=3?'目利き良好':'一部的中'}</div></div>
+    </div>`;
+    let lh='<table class="mini"><thead><tr><th>#</th><th>商品名</th><th>品番</th><th>売上</th><th>発注額</th></tr></thead><tbody>';
+    ct.forEach((x,i)=>{const hit=zenPN.has(x[0])?' class="hl"':'';const a=amt[x[0]];const aC=(a==null)?'<td style="color:#c9c9c9">―</td>':`<td style="color:var(--good);font-weight:700">${Number(a).toLocaleString()}</td>`;lh+=`<tr${hit}><td>${i+1}</td><td>${x[1]}</td><td class="pn">${x[0]}</td><td>${x[2]}</td>${aC}</tr>`;});
+    lh+='</tbody></table>';
+    let rh='<table class="mini"><thead><tr><th>#</th><th>商品名</th><th>品番</th><th>全店売上</th></tr></thead><tbody>';
+    zn.forEach((x,i)=>{const hit=chibaPN.has(x[0])?' class="hl"':'';rh+=`<tr${hit}><td>${i+1}</td><td>${x[1]}</td><td class="pn">${x[0]}</td><td>${Number(x[2]).toLocaleString()}</td></tr>`;});
+    rh+='</tbody></table>';
+    const sec=document.createElement('div');sec.style.marginBottom='18px';
+    sec.innerHTML=`<h3 style="font-size:14px;color:var(--accent);margin:8px 0 4px;border-bottom:1px solid var(--line);padding-bottom:4px">${bn}</h3>${metrics}<div class="twocol"><div class="panel"><h3>${D.DISP} TOP10</h3>${lh}</div><div class="panel"><h3>全店 TOP10</h3>${rh}</div></div>`;
+    host.appendChild(sec);
+  });
+})();
+
+// lorenz
+(function(){
+  const NS='http://www.w3.org/2000/svg',svg=document.getElementById('lorenz'),W=420,H=300,m={l:46,r:14,t:14,b:38},pw=W-m.l-m.r,ph=H-m.t-m.b;
+  const X=x=>m.l+x/100*pw,Y=y=>m.t+ph-y/100*ph;
+  [0,25,50,75,100].forEach(g=>{const ln=document.createElementNS(NS,'line');ln.setAttribute('x1',X(0));ln.setAttribute('x2',X(100));ln.setAttribute('y1',Y(g));ln.setAttribute('y2',Y(g));ln.setAttribute('stroke','#eee');svg.appendChild(ln);const tx=document.createElementNS(NS,'text');tx.setAttribute('x',m.l-6);tx.setAttribute('y',Y(g)+3);tx.setAttribute('text-anchor','end');tx.setAttribute('font-size','9');tx.setAttribute('fill','#999');tx.textContent=g;svg.appendChild(tx);const t2=document.createElementNS(NS,'text');t2.setAttribute('x',X(g));t2.setAttribute('y',H-22);t2.setAttribute('text-anchor','middle');t2.setAttribute('font-size','9');t2.setAttribute('fill','#999');t2.textContent=g;svg.appendChild(t2);});
+  const eq=document.createElementNS(NS,'line');eq.setAttribute('x1',X(0));eq.setAttribute('y1',Y(0));eq.setAttribute('x2',X(100));eq.setAttribute('y2',Y(100));eq.setAttribute('stroke','#bbb');eq.setAttribute('stroke-dasharray','4 3');svg.appendChild(eq);
+  let dd='M'+X(D.LORENZ[0][0])+' '+Y(D.LORENZ[0][1]);D.LORENZ.forEach(p=>dd+=' L'+X(p[0])+' '+Y(p[1]));
+  const path=document.createElementNS(NS,'path');path.setAttribute('d',dd);path.setAttribute('fill','none');path.setAttribute('stroke','#2D5A8E');path.setAttribute('stroke-width','2.5');svg.appendChild(path);
+  const area=document.createElementNS(NS,'path');area.setAttribute('d',dd+' L'+X(100)+' '+Y(0)+' Z');area.setAttribute('fill','#2D5A8E');area.setAttribute('opacity','0.07');svg.appendChild(area);
+  const xl=document.createElementNS(NS,'text');xl.setAttribute('x',m.l+pw/2);xl.setAttribute('y',H-4);xl.setAttribute('text-anchor','middle');xl.setAttribute('font-size','10');xl.setAttribute('fill','#666');xl.textContent='品番累積 %（売上降順）';svg.appendChild(xl);
+})();
+</script>
+</body></html>

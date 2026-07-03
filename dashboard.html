@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>27PS展示会 FC全店サマリーダッシュボード</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap');
+  :root{
+    --ink:#1a1a2e; --sub:#5a6473; --line:#e3e7ed; --bg:#EFECE6;
+    --card:#ffffff; --accent:#1f3a5f; --accent2:#2D5A8E;
+    --good:#1f8a5b; --warn:#c8922a; --bad:#c0492f; --barbg:#eef1f5;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Noto Sans JP',sans-serif;color:var(--ink);background:var(--bg);
+    line-height:1.6;font-size:13px;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:920px;margin:0 auto;padding:32px 20px 80px}
+  header.rpt{border-bottom:3px solid var(--accent);padding-bottom:18px;margin-bottom:8px}
+  .eyebrow{font-size:12px;letter-spacing:.12em;color:var(--accent2);font-weight:700}
+  h1{font-size:26px;margin:4px 0 2px;letter-spacing:.01em;font-weight:500}
+  .meta{font-size:12.5px;color:var(--sub)}
+  .badge{display:inline-block;background:var(--accent);color:#fff;font-size:11px;
+    padding:2px 9px;border-radius:11px;font-weight:700;margin-left:6px;vertical-align:2px}
+  section{margin-top:30px}
+  h2{font-size:16px;border-left:5px solid var(--accent);padding-left:10px;margin-bottom:14px;font-weight:700}
+  .note{font-size:11.5px;color:var(--sub);margin-top:-6px;margin-bottom:12px}
+  .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 14px 12px}
+  .kpi .lbl{font-size:11.5px;color:var(--sub);font-weight:600}
+  .kpi .val{font-size:22px;font-weight:700;margin-top:3px;letter-spacing:-.01em}
+  .kpi .unit{font-size:12px;font-weight:600;color:var(--sub);margin-left:2px}
+  .kpi .cmp{font-size:11px;margin-top:3px}
+  .up{color:var(--good)} .down{color:var(--bad)} .mid{color:var(--warn)}
+  table{width:100%;border-collapse:collapse;background:var(--card);
+    border:1px solid var(--line);border-radius:10px;overflow:hidden;font-size:13px}
+  th,td{padding:9px 10px;text-align:right;border-bottom:1px solid var(--line)}
+  th:first-child,td:first-child{text-align:left}
+  thead th{background:var(--accent);color:#fff;font-weight:700;font-size:12px}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr.total{background:#eef2f7;font-weight:700}
+  tbody tr.hl td{background:#fbf6ea}
+  .pos{color:var(--good);font-weight:700}.neg{color:var(--bad);font-weight:700}
+  .twocol{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px}
+  .panel h3{font-size:13.5px;margin-bottom:10px;color:var(--accent)}
+  .mini{font-size:12.5px}
+  .tag{display:inline-block;font-size:10.5px;padding:1px 7px;border-radius:10px;font-weight:700}
+  .tag.g{background:#e3f3ea;color:var(--good)} .tag.w{background:#fdf2dd;color:var(--warn)}
+  .tag.b{background:#fae6e0;color:var(--bad)}
+  .insight{background:#fff;border:1px solid var(--line);border-left:5px solid var(--accent);
+    border-radius:8px;padding:14px 16px;font-size:13px;margin-top:14px}
+  .insight strong{color:var(--accent)}
+  .pn{font-family:ui-monospace,Menlo,monospace;font-size:10.5px;color:var(--sub)}
+  /* donut */
+  .donut-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .donut-card{background:var(--card);border:1px solid var(--line);border-radius:10px;
+    padding:16px;display:flex;flex-direction:column;align-items:center;gap:8px}
+  .donut-card.avg{border:2px solid var(--accent)}
+  .donut-ttl{font-size:13px;font-weight:700}
+  .svg-wrap{position:relative;width:200px;height:200px}
+  .center-info{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+    text-align:center;pointer-events:none;width:100px}
+  .ci-rate{font-size:24px;font-weight:500;line-height:1}
+  .ci-lbl{font-size:10px;color:#aaa;margin-top:2px}
+  .ci-vals{font-size:10px;color:#888;margin-top:5px;line-height:1.7}
+  .leg-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px 10px;width:100%;margin-top:4px}
+  .leg-item{display:flex;align-items:flex-start;gap:4px;font-size:10px;color:#666;line-height:1.4}
+  .leg-sq{width:8px;height:8px;border-radius:2px;flex-shrink:0;margin-top:3px}
+  .donut-legendbar{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px}
+  .ltag{color:#fff;padding:3px 10px;border-radius:3px;font-size:.72rem;font-weight:500}
+  /* matrix */
+  .matrix td,.matrix th{padding:7px 5px;font-size:11px;text-align:center}
+  .matrix th:first-child,.matrix td:first-child{text-align:left}
+  .mx{display:inline-block;width:100%;border-radius:3px;padding:2px 0;font-weight:600}
+  /* lorenz */
+  .lorenz-wrap{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px}
+  /* brand metric strip */
+  .bmetrics{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:6px 0 12px}
+  .bm{background:#f5f2ec;border-radius:6px;padding:7px 9px}
+  .bm .bm-l{font-size:10px;color:var(--sub);font-weight:600}
+  .bm .bm-cmp{display:flex;justify-content:space-between;align-items:baseline;margin-top:3px}
+  .bm .bm-store{font-size:15px;font-weight:800;color:var(--ink)}
+  .bm .bm-avg{font-size:10.5px;color:#999}
+  .bm .bm-diff{font-size:10px;font-weight:700;margin-top:1px}
+  footer{margin-top:40px;font-size:11px;color:var(--sub);border-top:1px solid var(--line);padding-top:14px}
+  @media(max-width:760px){.cards{grid-template-columns:repeat(2,1fr)}.twocol,.donut-row{grid-template-columns:1fr}}
+  @media print{body{background:#fff}.wrap{max-width:none}}
+
+  .dash-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+  .scatter-wrap{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin-top:16px}
+  .quad-legend{display:flex;gap:16px;flex-wrap:wrap;font-size:11px;color:var(--sub);margin-top:8px}
+  .quad-legend span{display:flex;align-items:center;gap:4px}
+  .dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+  table.rank td,table.rank th{padding:8px 8px;font-size:12px}
+  table.rank a{color:var(--accent2);text-decoration:none;font-weight:700}
+  table.rank a:hover{text-decoration:underline}
+  .sortable{cursor:pointer;user-select:none}
+  .sortable:hover{background:var(--accent2)}
+  .grptag{font-size:9.5px;padding:1px 5px;border-radius:8px;background:#eef2f7;color:var(--accent);font-weight:700}
+</style></head><body>
+<div class="wrap">
+<header class="rpt">
+  <div class="eyebrow">27PS展示会｜26PS実績ベース</div>
+  <h1>FC全店 サマリーダッシュボード</h1>
+  <div class="meta">全17店舗の消化率・在庫倍率・追随率・委託シェアを横断比較／各店名クリックで個店レポートへ　※単位:千円</div>
+</header>
+
+<section>
+  <h2>全社KPI（26PS実績）</h2>
+  <div class="dash-grid">
+    <div class="kpi"><div class="lbl">FC合計 発注額</div><div class="val">126,273<span class="unit">千円</span></div></div>
+    <div class="kpi"><div class="lbl">FC合計 売上（プロパー）</div><div class="val">56,354<span class="unit">千円</span></div></div>
+    <div class="kpi"><div class="lbl">FC全体 消化率</div><div class="val">44.6<span class="unit">%</span></div></div>
+    <div class="kpi"><div class="lbl">FC平均 在庫倍率</div><div class="val">1.67</div></div>
+  </div>
+</section>
+
+<section>
+  <h2>発注方針マップ（消化率 × 在庫倍率）</h2>
+  <p class="note">横軸=消化率（右=高・経営効率良）／縦軸=在庫倍率（上=多）。右下=優良、左上=発注過多（抑制候補）、下=在庫効率高だが接客カード不足リスク。</p>
+  <div class="scatter-wrap">
+    <svg id="scatter" viewBox="0 0 720 420" width="100%"></svg>
+    <div class="quad-legend">
+      <span><span class="dot" style="background:#1f8a5b"></span>優良（高消化・適正在庫）</span>
+      <span><span class="dot" style="background:#c0492f"></span>発注過多（低消化・在庫過多）</span>
+      <span><span class="dot" style="background:#c8922a"></span>カード不足リスク（在庫倍率&lt;1.0）</span>
+      <span><span class="dot" style="background:#2D5A8E"></span>標準</span>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>全店ランキング一覧</h2>
+  <p class="note">ヘッダをクリックで並べ替え。店舗名クリックで個店レポートを開きます。</p>
+  <table class="rank" id="rank-tbl"></table>
+</section>
+
+<section>
+  <h2>発注方針サマリ</h2>
+  <div class="panel">
+    <ul class="mini" style="list-style:none;padding:0">
+      <li style="margin:8px 0"><span class="tag b">抑制候補</span> 宮崎（在庫3.69・消化19.8%）・水戸（2.28・36.9%）・郡山（2.18・28.7%）＝在庫過多×低消化の三重苦。27PS発注を大幅抑制。</li>
+      <li style="margin:8px 0"><span class="tag g">ベンチマーク</span> 富山（消化95.5%）・鳥取（78.6%）・旭川（61.1%）＝高効率。発注構成を他店の参考に。</li>
+      <li style="margin:8px 0"><span class="tag w">カード確保注意</span> 福山（0.70）・富山（0.75）・旭川（0.80）＝在庫効率は最良だが、接客提案に必要な在庫数の確保に留意。</li>
+      <li style="margin:8px 0"><span class="tag g">正価販売強</span> 鳥取（82.2%）・富山（81.7%）・和歌山/旭川（72%）＝プロパー比が高く値引き依存が低い。</li>
+    </ul>
+  </div>
+</section>
+
+<footer>本ダッシュボードは26PS実績（消化率・在庫倍率・構成比・追随度・委託）に基づく全社横断分析です。｜ 各店詳細は個店レポート参照 ｜ 単位:千円</footer>
+</div>
+
+<script>
+const D={"stores": [{"key": "富山", "disp": "富山TML", "group": "B", "order": 5679, "sales": 5422, "rate": 95.5, "inv": 0.75, "prop": 81.7, "sale": 18.3, "itaku": 2027.0, "ishare": 10.5, "follow": 42.2, "frank": 13, "prop_amt": 15787, "sale_amt": 3532}, {"key": "鳥取", "disp": "鳥取丸由", "group": "A", "order": 4523, "sales": 3557, "rate": 78.6, "inv": 1.76, "prop": 82.2, "sale": 17.8, "itaku": 692.0, "ishare": 4.7, "follow": 45.0, "frank": 8, "prop_amt": 12005, "sale_amt": 2596}, {"key": "高崎DP", "disp": "高崎高島屋DP", "group": "DPGV", "order": 781, "sales": 513, "rate": 65.7, "inv": 1.78, "prop": 44.7, "sale": 55.3, "itaku": 311.0, "ishare": 4.4, "follow": 36.7, "frank": 18, "prop_amt": 3190, "sale_amt": 3941}, {"key": "旭川", "disp": "旭川フィール", "group": "C", "order": 8618, "sales": 5265, "rate": 61.1, "inv": 0.8, "prop": 72.1, "sale": 27.9, "itaku": 2588.0, "ishare": 9.9, "follow": 42.9, "frank": 12, "prop_amt": 18903, "sale_amt": 7297}, {"key": "鹿児島GV", "disp": "鹿児島マルヤGV", "group": "23", "order": 2103, "sales": 1085, "rate": 51.6, "inv": 1.55, "prop": 56.5, "sale": 43.5, "itaku": 1300.0, "ishare": 12.9, "follow": 40.0, "frank": 15, "prop_amt": 5705, "sale_amt": 4392}, {"key": "和歌山", "disp": "和歌山近鉄", "group": "D", "order": 7131, "sales": 3476, "rate": 48.7, "inv": 1.79, "prop": 72.2, "sale": 27.8, "itaku": 418.0, "ishare": 2.6, "follow": 37.3, "frank": 17, "prop_amt": 11417, "sale_amt": 4396}, {"key": "高崎T", "disp": "高崎高島屋TML", "group": "A", "order": 6734, "sales": 3178, "rate": 47.2, "inv": 1.22, "prop": 69.6, "sale": 30.4, "itaku": 736.0, "ishare": 5.7, "follow": 50.0, "frank": 5, "prop_amt": 9003, "sale_amt": 3935}, {"key": "福山", "disp": "TML福山", "group": "C", "order": 5330, "sales": 2402, "rate": 45.1, "inv": 0.7, "prop": 59.0, "sale": 41.0, "itaku": 640.0, "ishare": 4.3, "follow": 39.2, "frank": 16, "prop_amt": 8827, "sale_amt": 6133}, {"key": "川越", "disp": "川越丸広", "group": "A", "order": 5002, "sales": 2162, "rate": 43.2, "inv": 1.29, "prop": 52.1, "sale": 47.9, "itaku": 287.0, "ishare": 1.6, "follow": 55.1, "frank": 2, "prop_amt": 9290, "sale_amt": 8533}, {"key": "千葉", "disp": "そごう千葉", "group": "B", "order": 13950, "sales": 5964, "rate": 42.8, "inv": 1.52, "prop": 66.8, "sale": 33.2, "itaku": 3176.0, "ishare": 10.3, "follow": 54.8, "frank": 3, "prop_amt": 20511, "sale_amt": 10211}, {"key": "盛岡", "disp": "盛岡川徳", "group": "A", "order": 9406, "sales": 3977, "rate": 42.3, "inv": 1.62, "prop": 67.4, "sale": 32.6, "itaku": 699.0, "ishare": 3.8, "follow": 52.5, "frank": 4, "prop_amt": 12310, "sale_amt": 5946}, {"key": "宇都宮", "disp": "東武宇都宮", "group": "B", "order": 8900, "sales": 3529, "rate": 39.7, "inv": 1.7, "prop": 52.1, "sale": 47.9, "itaku": 873.0, "ishare": 3.8, "follow": 44.1, "frank": 9, "prop_amt": 12015, "sale_amt": 11064}, {"key": "長野", "disp": "ながの東急", "group": "A", "order": 5535, "sales": 2087, "rate": 37.7, "inv": 1.92, "prop": 61.8, "sale": 38.2, "itaku": 690.0, "ishare": 6.1, "follow": 49.1, "frank": 6, "prop_amt": 6962, "sale_amt": 4312}, {"key": "水戸", "disp": "水戸京成", "group": "B", "order": 19598, "sales": 7240, "rate": 36.9, "inv": 2.28, "prop": 54.8, "sale": 45.2, "itaku": 3238.0, "ishare": 6.8, "follow": 56.3, "frank": 1, "prop_amt": 26213, "sale_amt": 21657}, {"key": "前橋", "disp": "前橋スズラン", "group": "A", "order": 5308, "sales": 1866, "rate": 35.2, "inv": 1.71, "prop": 56.2, "sale": 43.8, "itaku": 359.0, "ishare": 3.1, "follow": 42.0, "frank": 14, "prop_amt": 6589, "sale_amt": 5138}, {"key": "郡山", "disp": "郡山うすい", "group": "A", "order": 12673, "sales": 3639, "rate": 28.7, "inv": 2.18, "prop": 65.0, "sale": 35.0, "itaku": 1264.0, "ishare": 5.7, "follow": 43.3, "frank": 10, "prop_amt": 14408, "sale_amt": 7756}, {"key": "宮崎", "disp": "宮崎山形屋", "group": "A", "order": 5002, "sales": 992, "rate": 19.8, "inv": 3.69, "prop": 51.0, "sale": 49.0, "itaku": 482.0, "ishare": 5.0, "follow": 42.9, "frank": 11, "prop_amt": 4924, "sale_amt": 4740}], "fcavg": {"orderR": [40.9, 14.4, 15.6, 9.3, 1.5, 16.3, 1.9, 0.2], "salesR": [38.8, 16.8, 16.0, 6.4, 1.8, 18.2, 1.9, 0.2], "order": 126273, "sales": 56354, "rate": 44.6}, "fc": {"inv": 1.67, "prop": 63.1, "follow": 46.0, "itaku": 6.0}, "roma": {"千葉": "chiba", "旭川": "asahikawa", "富山": "toyama", "水戸": "mito", "川越": "kawagoe", "前橋": "maebashi", "宇都宮": "utsunomiya", "盛岡": "morioka", "郡山": "koriyama", "和歌山": "wakayama", "鳥取": "tottori", "高崎T": "takasaki_tml", "高崎DP": "takasaki_dp", "長野": "nagano", "福山": "fukuyama", "鹿児島GV": "kagoshima_gv", "宮崎": "miyazaki"}};
+const FC=D.fc, FCAVG=D.fcavg;
+function fn(k){return 'store_'+(D.roma[k]||k)+'.html';}
+function classify(s){
+  if(s.inv>=2.2 && s.rate<40) return '#c0492f';
+  if(s.inv<1.0) return '#c8922a';
+  if(s.rate>=FCAVG.rate && s.inv<=FC.inv) return '#1f8a5b';
+  return '#2D5A8E';
+}
+(function(){
+  const NS='http://www.w3.org/2000/svg',svg=document.getElementById('scatter');
+  const W=720,H=420,m={l:56,r:20,t:20,b:50},pw=W-m.l-m.r,ph=H-m.t-m.b;
+  const X=x=>m.l+(x-0)/100*pw, Y=y=>m.t+ph-(y-0)/4*ph;
+  [0,25,50,75,100].forEach(g=>{const ln=document.createElementNS(NS,'line');ln.setAttribute('x1',X(g));ln.setAttribute('x2',X(g));ln.setAttribute('y1',m.t);ln.setAttribute('y2',m.t+ph);ln.setAttribute('stroke','#f0f0f0');svg.appendChild(ln);const t=document.createElementNS(NS,'text');t.setAttribute('x',X(g));t.setAttribute('y',H-28);t.setAttribute('text-anchor','middle');t.setAttribute('font-size','10');t.setAttribute('fill','#999');t.textContent=g+'%';svg.appendChild(t);});
+  [0,1,2,3,4].forEach(g=>{const ln=document.createElementNS(NS,'line');ln.setAttribute('x1',m.l);ln.setAttribute('x2',m.l+pw);ln.setAttribute('y1',Y(g));ln.setAttribute('y2',Y(g));ln.setAttribute('stroke','#f0f0f0');svg.appendChild(ln);const t=document.createElementNS(NS,'text');t.setAttribute('x',m.l-8);t.setAttribute('y',Y(g)+3);t.setAttribute('text-anchor','end');t.setAttribute('font-size','10');t.setAttribute('fill','#999');t.textContent=g;svg.appendChild(t);});
+  const vl=document.createElementNS(NS,'line');vl.setAttribute('x1',X(FCAVG.rate));vl.setAttribute('x2',X(FCAVG.rate));vl.setAttribute('y1',m.t);vl.setAttribute('y2',m.t+ph);vl.setAttribute('stroke','#c8b8a0');vl.setAttribute('stroke-dasharray','4 3');svg.appendChild(vl);
+  const hl=document.createElementNS(NS,'line');hl.setAttribute('x1',m.l);hl.setAttribute('x2',m.l+pw);hl.setAttribute('y1',Y(FC.inv));hl.setAttribute('y2',Y(FC.inv));hl.setAttribute('stroke','#c8b8a0');hl.setAttribute('stroke-dasharray','4 3');svg.appendChild(hl);
+  const xl=document.createElementNS(NS,'text');xl.setAttribute('x',m.l+pw/2);xl.setAttribute('y',H-6);xl.setAttribute('text-anchor','middle');xl.setAttribute('font-size','11');xl.setAttribute('fill','#666');xl.textContent='消化率 →（経営効率）';svg.appendChild(xl);
+  const yl=document.createElementNS(NS,'text');yl.setAttribute('transform',`translate(14,${m.t+ph/2}) rotate(-90)`);yl.setAttribute('text-anchor','middle');yl.setAttribute('font-size','11');yl.setAttribute('fill','#666');yl.textContent='在庫倍率 ↑（多）';svg.appendChild(yl);
+  D.stores.forEach(s=>{
+    const c=classify(s),g=document.createElementNS(NS,'g');
+    const ci=document.createElementNS(NS,'circle');ci.setAttribute('cx',X(s.rate));ci.setAttribute('cy',Y(s.inv));ci.setAttribute('r',7);ci.setAttribute('fill',c);ci.setAttribute('opacity','0.85');ci.setAttribute('stroke','#fff');ci.setAttribute('stroke-width','1.5');g.appendChild(ci);
+    const t=document.createElementNS(NS,'text');t.setAttribute('x',X(s.rate)+9);t.setAttribute('y',Y(s.inv)+3);t.setAttribute('font-size','9.5');t.setAttribute('fill','#444');t.textContent=s.disp;g.appendChild(t);
+    svg.appendChild(g);
+  });
+})();
+let sortKey='rate',sortAsc=false;
+function rankColor(v,type){
+  if(type==='rate') return v>=FCAVG.rate?'#1f8a5b':(v<35?'#c0492f':'#c8922a');
+  if(type==='inv') return v>=2.2?'#c0492f':(v<1.0?'#c8922a':'#1f8a5b');
+  if(type==='prop') return v>=FC.prop?'#1f8a5b':'#5a6473';
+  return '#1a1a2e';
+}
+function renderTable(){
+  const cols=[['disp','店舗'],['group','G'],['order','発注'],['sales','売上'],['rate','消化率'],['inv','在庫倍率'],['prop','プロパー比'],['ishare','委託%'],['follow','追随率']];
+  const arr=[...D.stores].sort((a,b)=>{const x=a[sortKey],y=b[sortKey];if(typeof x==='string')return sortAsc?String(x).localeCompare(y):String(y).localeCompare(x);return sortAsc?x-y:y-x;});
+  let h='<thead><tr>'+cols.map(c=>`<th class="sortable" data-k="${c[0]}">${c[1]}</th>`).join('')+'</tr></thead><tbody>';
+  arr.forEach(s=>{
+    h+='<tr>';
+    h+=`<td><a href="${fn(s.key)}">${s.disp}</a></td>`;
+    h+=`<td><span class="grptag">${s.group}</span></td>`;
+    h+=`<td>${s.order.toLocaleString()}</td>`;
+    h+=`<td>${s.sales.toLocaleString()}</td>`;
+    h+=`<td style="color:${rankColor(s.rate,'rate')};font-weight:700">${s.rate}%</td>`;
+    h+=`<td style="color:${rankColor(s.inv,'inv')};font-weight:700">${s.inv}</td>`;
+    h+=`<td style="color:${rankColor(s.prop,'prop')}">${s.prop}%</td>`;
+    h+=`<td>${s.ishare!=null?s.ishare+'%':'-'}</td>`;
+    h+=`<td>${s.follow}% <span style="color:#aaa;font-size:10px">#${s.frank}</span></td>`;
+    h+='</tr>';
+  });
+  h+='</tbody>';
+  const tbl=document.getElementById('rank-tbl');tbl.innerHTML=h;
+  tbl.querySelectorAll('.sortable').forEach(th=>th.onclick=()=>{const k=th.dataset.k;if(sortKey===k)sortAsc=!sortAsc;else{sortKey=k;sortAsc=false;}renderTable();});
+}
+renderTable();
+</script>
+</body></html>
