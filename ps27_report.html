@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>27PS 発注設計の手引き</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@600;700&family=IBM+Plex+Mono:wght@400;600&display=swap');
+:root{
+  --paper:#EFEBE2; --card:#FCFAF6; --sink:#E5E0D4; --rule:#D7D1C2; --rule-2:#C3BCA8;
+  --ink:#191C24; --ink-2:#4A5060; --ink-3:#797F90;
+  --win:#1B3A6B; --win-2:#3A6BA8; --win-soft:#E4EBF4; --on-win:#F5F8FC;
+  --spr:#8C6A21; --spr-soft:#F6EDD8;
+  --bad:#A03E27; --bad-soft:#F4E1DA;
+  --good:#1C6B4C; --good-soft:#DEEBE3;
+  --shadow:0 1px 2px rgba(25,28,36,.05),0 10px 26px -18px rgba(25,28,36,.3);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#14161B; --card:#1C1F27; --sink:#252932; --rule:#2E333F; --rule-2:#3D4352;
+  --ink:#EAE7DF; --ink-2:#B0B6C2; --ink-3:#828997;
+  --win:#8FB6E4; --win-2:#6E9AD2; --win-soft:#1B2635; --on-win:#0E1720;
+  --spr:#D6AC57; --spr-soft:#2A2314;
+  --bad:#DD7E60; --bad-soft:#321F19;
+  --good:#5CBB8F; --good-soft:#14281F;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 26px -18px rgba(0,0,0,.85);
+}}
+:root[data-theme="dark"]{
+  --paper:#14161B; --card:#1C1F27; --sink:#252932; --rule:#2E333F; --rule-2:#3D4352;
+  --ink:#EAE7DF; --ink-2:#B0B6C2; --ink-3:#828997;
+  --win:#8FB6E4; --win-2:#6E9AD2; --win-soft:#1B2635; --on-win:#0E1720;
+  --spr:#D6AC57; --spr-soft:#2A2314;
+  --bad:#DD7E60; --bad-soft:#321F19;
+  --good:#5CBB8F; --good-soft:#14281F;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 26px -18px rgba(0,0,0,.85);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:'Noto Sans JP',system-ui,sans-serif;
+  font-size:14px;line-height:1.78;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1060px;margin:0 auto;padding:clamp(26px,5vw,54px) clamp(15px,4vw,32px) 92px;
+  display:flex;flex-direction:column;gap:clamp(34px,5vw,54px)}
+.num{font-family:'IBM Plex Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums}
+
+.mast{display:flex;flex-direction:column;gap:13px;border-bottom:2px solid var(--win);padding-bottom:20px}
+.kicker{font-size:11px;letter-spacing:.17em;font-weight:700;color:var(--win-2)}
+.mast h1{font-family:'Noto Serif JP',serif;font-weight:700;font-size:clamp(25px,4.3vw,37px);
+  line-height:1.32;text-wrap:balance}
+.standfirst{font-size:15px;color:var(--ink-2);max-width:64ch}
+.meta{display:flex;flex-wrap:wrap;gap:7px 20px;font-size:11.5px;color:var(--ink-3)}
+.meta b{color:var(--ink-2)}
+.backlink{align-self:flex-start;font-size:12px;font-weight:700;color:var(--win-2);text-decoration:none;
+  border-bottom:1px solid transparent}
+.backlink:hover,.backlink:focus-visible{border-bottom-color:var(--win-2)}
+
+.correction{border-left:3px solid var(--spr);background:var(--spr-soft);padding:16px 20px;border-radius:0 3px 3px 0;font-size:13.5px}
+.correction b{font-weight:700}
+
+section{display:flex;flex-direction:column;gap:17px}
+.shead{display:flex;align-items:baseline;gap:12px;border-bottom:1px solid var(--rule-2);padding-bottom:8px}
+.sidx{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:var(--win-2);flex:none;padding-top:4px;letter-spacing:.05em}
+.shead h2{font-family:'Noto Serif JP',serif;font-size:20px;font-weight:700;line-height:1.42;text-wrap:balance}
+.lede{font-size:14px;color:var(--ink-2);max-width:70ch}
+.note{font-size:12px;color:var(--ink-3);max-width:76ch}
+
+.figure{background:var(--card);border:1px solid var(--rule);border-radius:3px;box-shadow:var(--shadow);overflow:hidden}
+.figure>figcaption{font-size:11.5px;color:var(--ink-3);padding:11px 16px;border-top:1px solid var(--rule);background:var(--sink)}
+.scroll{overflow-x:auto}
+.pad{padding:18px 20px}
+
+.pull{border-left:3px solid var(--win-2);background:var(--win-soft);padding:16px 20px;border-radius:0 3px 3px 0;font-size:14px}
+.pull.bad{border-left-color:var(--bad);background:var(--bad-soft)}
+.pull.good{border-left-color:var(--good);background:var(--good-soft)}
+.pull.warn{border-left-color:var(--spr);background:var(--spr-soft)}
+
+/* 月の山 */
+.mount{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;align-items:end}
+.mo{display:flex;flex-direction:column;gap:7px}
+.mo .cap{display:flex;justify-content:space-between;align-items:baseline;font-size:12px}
+.mo .cap b{font-size:13px}
+.mo .cap .v{font-family:'IBM Plex Mono',monospace;font-weight:600;font-variant-numeric:tabular-nums}
+.stack{display:flex;flex-direction:column-reverse;border-radius:2px;overflow:hidden;background:var(--sink)}
+.seg{display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;
+  font-family:'IBM Plex Mono',monospace;min-height:0;overflow:hidden;white-space:nowrap}
+.s54{background:var(--win);color:var(--on-win)}
+.s61{background:var(--spr);color:#241B06}
+.sot{background:var(--rule-2);color:var(--ink)}
+.mlegend{display:flex;flex-wrap:wrap;gap:14px;font-size:11.5px;color:var(--ink-2);margin-top:4px}
+.mlegend span{display:flex;align-items:center;gap:5px}
+.sq{width:11px;height:11px;border-radius:2px;flex:none}
+
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th,td{padding:8px 11px;text-align:right;border-bottom:1px solid var(--rule);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+thead th{background:var(--win);color:var(--on-win);font-weight:700;font-size:11px;letter-spacing:.03em}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:var(--sink)}
+tbody tr.hl td{background:var(--win-soft)}
+td.n{font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums}
+.chip{display:inline-block;font-size:10px;font-weight:700;padding:1px 7px;border-radius:2px}
+.chip.q{background:var(--win-soft);color:var(--win)}
+.chip.c54{background:var(--win);color:var(--on-win)}
+.chip.c61{background:var(--spr-soft);color:var(--spr)}
+.hi{color:var(--good);font-weight:700} .lo{color:var(--bad);font-weight:700}
+.barc{position:relative}
+.barc span{position:relative;z-index:1}
+.barc::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);height:19px;
+  background:var(--win-soft);width:var(--w,0%);border-radius:1px}
+
+.quads{display:grid;gap:12px}
+@media(min-width:680px){.quads{grid-template-columns:repeat(2,1fr)}}
+.qc{background:var(--card);border:1px solid var(--rule);border-radius:3px;padding:17px 19px;
+  display:flex;flex-direction:column;gap:8px;box-shadow:var(--shadow);border-top:3px solid var(--rule-2)}
+.qc.best{border-top-color:var(--good)} .qc.worst{border-top-color:var(--bad)}
+.qc h3{font-size:13.5px;font-weight:700}
+.qc .big{font-family:'IBM Plex Mono',monospace;font-size:26px;font-weight:600;line-height:1.1;font-variant-numeric:tabular-nums}
+.qc.best .big{color:var(--good)} .qc.worst .big{color:var(--bad)}
+.qc .sub{font-size:12px;color:var(--ink-2)}
+
+.corr{display:grid;gap:9px}
+@media(min-width:680px){.corr{grid-template-columns:1fr 1fr}}
+.crow{display:grid;grid-template-columns:1fr 46px 120px;gap:10px;align-items:center;
+  background:var(--card);border:1px solid var(--rule);border-radius:3px;padding:10px 13px;font-size:12.5px}
+.crow b{font-weight:700}
+.crow .cv{font-family:'IBM Plex Mono',monospace;font-weight:600;text-align:right;font-variant-numeric:tabular-nums}
+.ctrack{height:8px;background:var(--sink);border-radius:4px;position:relative;overflow:hidden}
+.ctrack i{position:absolute;top:0;bottom:0;border-radius:4px}
+.ctrack .mid{position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--rule-2)}
+
+.acts{display:flex;flex-direction:column;gap:13px}
+.act{background:var(--card);border:1px solid var(--rule);border-radius:3px;padding:18px 20px;
+  display:grid;gap:9px;box-shadow:var(--shadow);border-left:3px solid var(--win-2)}
+.act .tag{justify-self:start;font-size:10.5px;font-weight:700;letter-spacing:.05em;padding:2px 8px;
+  border-radius:2px;background:var(--win-soft);color:var(--win)}
+.act h3{font-family:'Noto Serif JP',serif;font-size:16.5px;font-weight:700;line-height:1.5;text-wrap:balance}
+.act p{font-size:13px;color:var(--ink-2)}
+.act .ev{font-size:12px;color:var(--ink-3);border-top:1px dashed var(--rule-2);padding-top:9px}
+.act .ev b{color:var(--win-2)}
+
+footer{border-top:1px solid var(--rule-2);padding-top:17px;font-size:11.5px;color:var(--ink-3);line-height:1.9}
+:focus-visible{outline:2px solid var(--win-2);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* --- 統合レポート追加分 --- */
+.fac{display:grid;gap:12px}
+@media(min-width:700px){.fac{grid-template-columns:repeat(2,1fr)}}
+.fcard{background:var(--card);border:1px solid var(--rule);border-left:3px solid var(--win-2);
+  border-radius:0 3px 3px 0;padding:16px 18px;display:flex;flex-direction:column;gap:7px;box-shadow:var(--shadow)}
+.fcard h3{font-size:14px;font-weight:700}
+.fcard .amt{font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:600;font-variant-numeric:tabular-nums}
+.fcard p{font-size:12.5px;color:var(--ink-2)}
+.fcard.f-a{border-left-color:var(--bad)} .fcard.f-b{border-left-color:var(--spr)}
+.fcard.f-c{border-left-color:var(--win-2)} .fcard.f-d{border-left-color:var(--rule-2)}
+.gsplit{display:flex;height:32px;border-radius:2px;overflow:hidden;background:var(--sink);margin-top:2px}
+.gseg{display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:700;
+  font-family:'IBM Plex Mono',monospace;white-space:nowrap;overflow:hidden}
+.g-old{background:var(--bad);color:#FFF3EF}
+.g-fw{background:var(--win);color:var(--on-win)}
+.g-ps{background:var(--spr);color:#241B06}
+.g-etc{background:var(--rule-2);color:var(--ink)}
+.glegend{display:flex;flex-wrap:wrap;gap:13px;font-size:11px;color:var(--ink-2);margin-top:9px}
+.glegend span{display:flex;align-items:center;gap:5px}
+.gsq{width:11px;height:11px;border-radius:2px;flex:none;display:inline-block}
+.split2{display:grid;gap:12px}
+@media(min-width:700px){.split2{grid-template-columns:1fr 1fr}}
+.sp{background:var(--card);border:1px solid var(--rule);border-radius:3px;padding:17px 19px;
+  display:flex;flex-direction:column;gap:7px;box-shadow:var(--shadow);border-top:3px solid var(--rule-2)}
+.sp.s1{border-top-color:var(--spr)} .sp.s2{border-top-color:var(--bad)}
+.sp h3{font-size:13.5px;font-weight:700}
+.sp .big{font-family:'IBM Plex Mono',monospace;font-size:25px;font-weight:600;line-height:1.1;font-variant-numeric:tabular-nums}
+.sp.s1 .big{color:var(--spr)} .sp.s2 .big{color:var(--bad)}
+.sp .sub{font-size:12px;color:var(--ink-2)}
+.mx td.cell{text-align:center;font-family:'IBM Plex Mono',monospace;font-weight:600;font-variant-numeric:tabular-nums}
+.mx td.cell small{display:block;font-weight:400;font-size:9.5px;opacity:.62;font-family:'Noto Sans JP',sans-serif}
+.hyp{display:flex;flex-direction:column;gap:13px}
+.hcard{background:var(--card);border:1px solid var(--rule);border-radius:3px;padding:19px 21px;
+  display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow);border-left:3px solid var(--spr)}
+.htag{align-self:flex-start;font-size:10.5px;font-weight:700;letter-spacing:.05em;padding:2px 8px;
+  border-radius:2px;background:var(--spr-soft);color:var(--spr)}
+.hcard h3{font-family:'Noto Serif JP',serif;font-size:17px;font-weight:700;line-height:1.5;text-wrap:balance}
+.hcard p{font-size:13px;color:var(--ink-2)}
+.hcard .test{font-size:12.5px;color:var(--ink-3);border-top:1px dashed var(--rule-2);padding-top:10px}
+.hcard .test b{color:var(--win-2);font-weight:700}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="mast">
+<a class="backlink" href="index.html">← 全店ダッシュボードへ戻る</a>
+<div class="kicker">27PS展示会｜26PS発注実績 × 26Q4期（2025年12月〜2026年2月）店頭実績</div>
+<h1>12〜2月の売上を上げる打ち手は、<br>発注の中身より納品の時期にある</h1>
+<p class="standfirst">26PS展示会の発注明細3,553行と、12〜2月の在庫・売上明細8,344件を品番×店舗で突き合わせた。売れ残りがどこで生まれ、誰の責任で、27PS展示会で何を変えるべきかを一本にまとめている。</p>
+<div class="meta"><span>26PS発注 <b class="num">126,273</b>千円</span><span>12〜2月売上 <b class="num">53,881</b>千円</span><span>消化率 <b class="num">42.7%</b></span><span>デッドストック <b class="num">206,291</b>千円</span><span>FC17店</span><span>2026/08/23</span></div>
+</header>
+<section>
+<div class="shead"><span class="sidx">01</span><h2>デッドストック化するのは店ではなく、アイテムだった</h2></div>
+<p class="lede">ブランド×アイテムでデッドストック率を引くと、店舗差よりはるかに大きな差が出る。<b>ジャケットは全6ブランドで56〜80%。ワンピースは74%。</b>どのブランドで買っても、この2カテゴリーは同じように残っている。</p>
+<figure class="figure"><div class="scroll"><table class="mx">
+<thead><tr><th>ブランド</th><th style="text-align:center">コート・アウター</th><th style="text-align:center">ジャケット</th><th style="text-align:center">ニット</th><th style="text-align:center">カットソー・インナー</th><th style="text-align:center">シャツ・ブラウス</th><th style="text-align:center">パンツ</th><th style="text-align:center">スカート</th><th style="text-align:center">ワンピース</th><th style="text-align:center">計</th></tr></thead><tbody>
+<tr><td><b>Ballsey</b></td>
+<td class="cell" style="background:var(--good-soft);color:var(--good)">17%<small>14.3M</small></td>
+<td class="cell" style="background:var(--bad);color:#FFF3EF">76%<small>2.9M</small></td>
+<td class="cell" style="">34%<small>15.1M</small></td>
+<td class="cell" style="background:var(--good-soft);color:var(--good)">10%<small>3.1M</small></td>
+<td class="cell" style="">34%<small>4.6M</small></td>
+<td class="cell" style="background:var(--good-soft);color:var(--good)">24%<small>7.6M</small></td>
+<td class="cell" style="">29%<small>2.7M</small></td>
+<td class="cell" style="background:var(--bad);color:#FFF3EF">73%<small>2.3M</small></td>
+<td class="cell" style=";border-left:1px solid var(--rule-2)"><b>30%</b><small>52M</small></td></tr>
+<tr><td><b>MACPHEE</b></td>
+<td class="cell" style="background:var(--spr-soft);color:var(--spr)">39%<small>4.0M</small></td>
+<td class="cell" style="background:var(--bad);color:#FFF3EF">68%<small>0.7M</small></td>
+<td class="cell" style="">28%<small>14.1M</small></td>
+<td class="cell" style="background:var(--good-soft);color:var(--good)">16%<small>4.3M</small></td>
+<td class="cell" style="background:var(--good-soft);color:var(--good)">23%<small>2.7M</small></td>
+<td class="cell" style="">28%<small>7.2M</small></td>
+<td class="cell" style="background:var(--spr-soft);color:var(--spr)">43%<small>2.4M</small></td>
+<td class="cell" style="color:var(--ink-3)">–</td>
+<td class="cell" style=";border-left:1px solid var(--rule-2)"><b>29%</b><small>35M</small></td></tr>
+<tr><td><b>TML Collection</b></td>
+<td class="cell" style="">32%<small>13.4M</small></td>
+<td class="cell" style="background:var(--bad);color:#FFF3EF">71%<small>4.5M</small></td>
+<td class="cell" style="background:var(--bad-soft);color:var(--bad)">50%<small>7.3M</small></td>
+<td class="cell" style="color:var(--ink-3)">–</td>
+<td class="cell" style="background:var(--bad);color:#FFF3EF">70%<small>2.9M</small></td>
+<td class="cell" style="background:var(--bad);color:#FFF3EF">67%<small>1.8M</small></td>
+<td class="cell" style="background:var(--bad);color:#FFF3EF">85%<small>0.8M</small></td>
+<td class="cell" style="background:var(--bad);color:#FFF3EF">73%<small>1.0M</small></td>
+<td class="cell" style="background:var(--bad-soft);color:var(--bad);border-left:1px solid var(--rule-2)"><b>50%</b><small>32M</small></td></tr>
+<tr><td><b>TML O</b></td>
+<td class="cell" style="background:var(--bad);color:#FFF3EF">72%<small>2.6M</small></td>
+<td class="cell" style="background:var(--bad);color:#FFF3EF">80%<small>4.5M</small></td>
+<td class="cell" style="color:var(--ink-3)">–</td>
+<td class="cell" style="">36%<small>0.7M</small></td>
+<td class="cell" style="background:var(--bad-soft);color:var(--bad)">64%<small>2.3M</small></td>
+<td class="cell" style="color:var(--ink-3)">–</td>
+<td class="cell" style="background:var(--bad);color:#FFF3EF">77%<small>1.2M</small></td>
+<td class="cell" style="color:var(--ink-3)">–</td>
+<td class="cell" style="background:var(--bad);color:#FFF3EF;border-left:1px solid var(--rule-2)"><b>72%</b><small>11M</small></td></tr>
+<tr><td><b>DES PRES</b></td>
+<td class="cell" style="">34%<small>0.9M</small></td>
+<td class="cell" style="background:var(--bad-soft);color:var(--bad)">61%<small>0.8M</small></td>
+<td class="cell" style="background:var(--bad-soft);color:var(--bad)">57%<small>0.6M</small></td>
+<td class="cell" style="color:var(--ink-3)">–</td>
+<td class="cell" style="background:var(--bad-soft);color:var(--bad)">51%<small>0.4M</small></td>
+<td class="cell" style="background:var(--good-soft);color:var(--good)">18%<small>1.1M</small></td>
+<td class="cell" style="">37%<small>0.6M</small></td>
+<td class="cell" style="color:var(--ink-3)">–</td>
+<td class="cell" style="background:var(--spr-soft);color:var(--spr);border-left:1px solid var(--rule-2)"><b>40%</b><small>4M</small></td></tr>
+<tr><td><b>GALERIE VIE</b></td>
+<td class="cell" style="background:var(--spr-soft);color:var(--spr)">46%<small>7.4M</small></td>
+<td class="cell" style="background:var(--bad-soft);color:var(--bad)">56%<small>4.4M</small></td>
+<td class="cell" style="">26%<small>17.6M</small></td>
+<td class="cell" style="background:var(--bad-soft);color:var(--bad)">57%<small>3.5M</small></td>
+<td class="cell" style="background:var(--bad-soft);color:var(--bad)">59%<small>4.2M</small></td>
+<td class="cell" style="">30%<small>10.2M</small></td>
+<td class="cell" style="background:var(--bad-soft);color:var(--bad)">57%<small>1.4M</small></td>
+<td class="cell" style="background:var(--bad);color:#FFF3EF">82%<small>2.2M</small></td>
+<td class="cell" style="background:var(--spr-soft);color:var(--spr);border-left:1px solid var(--rule-2)"><b>40%</b><small>51M</small></td></tr>
+<tr style="border-top:2px solid var(--rule-2)"><td><b>全ブランド計</b></td>
+<td class="cell" style=""><b>33%</b><small>43M</small></td>
+<td class="cell" style="background:var(--bad);color:#FFF3EF"><b>70%</b><small>18M</small></td>
+<td class="cell" style=""><b>32%</b><small>55M</small></td>
+<td class="cell" style=""><b>28%</b><small>12M</small></td>
+<td class="cell" style="background:var(--spr-soft);color:var(--spr)"><b>49%</b><small>17M</small></td>
+<td class="cell" style=""><b>30%</b><small>28M</small></td>
+<td class="cell" style="background:var(--spr-soft);color:var(--spr)"><b>49%</b><small>9M</small></td>
+<td class="cell" style="background:var(--bad);color:#FFF3EF"><b>74%</b><small>6M</small></td>
+<td class="cell" style="background:var(--spr-soft);color:var(--spr)"><b>39%</b><small>188M</small></td></tr>
+</tbody></table></div><figcaption>数値＝デッドストック率、下段＝平均在庫額（M＝百万円）。対象はFW展示会の発注品。在庫40万円未満のセルは省略。濃い赤ほど残っている。</figcaption></figure>
+<div class="pull bad"><b>ワンピース74%は、四半期MTGの議論と正面から矛盾する。</b>宮崎・川越ではマザーニーズのネイビーワンピースが「サイズ欠けで買えない」と報告された。一方でデータ上のワンピースは在庫の4分の3が動いていない。<b>欲しがられているワンピースと、店にあるワンピースが別物</b>である可能性が高い。「増やす／減らす」ではなく、品番レベルでの入れ替えが答えになる。</div>
+</section>
+<section>
+<div class="shead"><span class="sidx">02</span><h2>デッドストックを、責任の所在で4つに割る</h2></div>
+<p class="lede">同じ「売れなかった」でも打ち手はまったく違う。各品番が何店に展開され、そのうち何店で売上ゼロだったかで分類した。対象はデッドストック 206,291千円・1,395品番。</p>
+<div class="fac">
+<div class="fcard f-a"><h3>A｜全店でデッドストック化</h3><span class="amt">84,901<span style="font-size:12px;font-weight:400"> 千円 ／ 41%・345品番</span></span><p>展開3店以上で、8割以上の店が売上ゼロ。</p></div>
+<div class="fcard f-b"><h3>B｜自店だけデッドストック化</h3><span class="amt">37,670<span style="font-size:12px;font-weight:400"> 千円 ／ 18%・292品番</span></span><p>他店では売れている品番を、この店だけ動かせなかった。</p></div>
+<div class="fcard f-c"><h3>C｜少数展開でデッドストック化</h3><span class="amt">26,983<span style="font-size:12px;font-weight:400"> 千円 ／ 13%・480品番</span></span><p>2店以下しか持たなかった品番が動かなかった。</p></div>
+<div class="fcard f-d"><h3>D｜半数前後でデッドストック化</h3><span class="amt">56,737<span style="font-size:12px;font-weight:400"> 千円 ／ 28%・278品番</span></span><p>商品要因と店舗要因が混在する層。</p></div>
+</div>
+<p class="lede" style="margin-top:4px">品番まで下ろして展示会世代を見ると、この4分類の意味が最初の見立てと変わってくる。</p>
+<figure class="figure"><div class="pad">
+<div style="margin-bottom:13px"><div style="display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px"><b>A｜全店でデッドストック化</b><span class="num" style="color:var(--ink-3);font-size:11.5px">84,901千円</span></div><div class="gsplit">
+<div class="gseg g-old" style="width:76.20287157984005%">旧PS/SS繰越 76%</div>
+<div class="gseg g-etc" style="width:4.030576789437109%"></div>
+<div class="gseg g-fw" style="width:12.209514611135322%"></div>
+<div class="gseg g-ps" style="width:2.901025900754997%"></div>
+<div class="gseg g-etc" style="width:4.656011118832523%"></div>
+</div></div>
+<div style="margin-bottom:13px"><div style="display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px"><b>B｜自店だけデッドストック化</b><span class="num" style="color:var(--ink-3);font-size:11.5px">37,670千円</span></div><div class="gsplit">
+<div class="gseg g-old" style="width:20.355720732678524%">旧PS/SS繰越 20%</div>
+<div class="gseg g-etc" style="width:16.132200690204407%">旧FW繰越 16%</div>
+<div class="gseg g-fw" style="width:39.3310326519777%">25FW 39%</div>
+<div class="gseg g-ps" style="width:23.886381736129547%">26PS 24%</div>
+<div class="gseg g-etc" style="width:0.29466418900982216%"></div>
+</div></div>
+<div style="margin-bottom:13px"><div style="display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px"><b>C｜少数展開でデッドストック化</b><span class="num" style="color:var(--ink-3);font-size:11.5px">26,983千円</span></div><div class="gsplit">
+<div class="gseg g-old" style="width:48.348960456583775%">旧PS/SS繰越 48%</div>
+<div class="gseg g-etc" style="width:14.931623614868622%">旧FW繰越 15%</div>
+<div class="gseg g-fw" style="width:26.624170774191157%">25FW 27%</div>
+<div class="gseg g-ps" style="width:9.23173850201979%"></div>
+<div class="gseg g-etc" style="width:0.8635066523366564%"></div>
+</div></div>
+<div style="margin-bottom:13px"><div style="display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px"><b>D｜半数前後でデッドストック化</b><span class="num" style="color:var(--ink-3);font-size:11.5px">56,737千円</span></div><div class="gsplit">
+<div class="gseg g-old" style="width:27.405396830992125%">旧PS/SS繰越 27%</div>
+<div class="gseg g-etc" style="width:18.418316090029435%">旧FW繰越 18%</div>
+<div class="gseg g-fw" style="width:29.795371626980632%">25FW 30%</div>
+<div class="gseg g-ps" style="width:20.820628514020832%">26PS 21%</div>
+<div class="gseg g-etc" style="width:3.5602869379769815%"></div>
+</div></div>
+<div class="glegend"><span><i class="gsq g-old"></i>旧PS/SS展示会の繰越</span><span><i class="gsq g-fw"></i>25FW（今期の冬）</span><span><i class="gsq g-ps"></i>26PS（今期のPS）</span><span><i class="gsq g-etc"></i>旧FW繰越・26SS</span></div>
+</div><figcaption>各分類のデッドストック額を、品番の展示会世代で分解。単位:千円</figcaption></figure>
+<div class="pull bad"><b>Aは「商品が悪い」ではなかった。</b>A分類84,901千円のうち<b>76%（64,697千円）が旧PS/SS展示会の繰越在庫</b>で、今期商品（25FW＋26PS）は15%しかない。去年以前の春夏物が12〜2月に動かないという当たり前のことを「全店で動かない商品」と読み違えていた。<b>Aの正体は発注の失敗ではなく、在庫処分の遅れである。</b>四半期MTGで郡山・水戸が挙げた「減価償却ルールの策定」は、まさにこの塊に向けた提案だった。</div>
+<p class="lede" style="margin-top:6px">Aをさらに切り分けるため、<b>全社全店（直営含む）の12〜2月売上</b>と品番で突き合わせた。FCで全店ゼロだった品番が、会社全体では売れていたのかどうかを見る。</p>
+<div class="split2">
+<div class="sp s1"><h3>A1｜FCでは全店ゼロ／全社では売れた</h3><span class="big">262<span style="font-size:13px;font-weight:400">品番</span></span><span class="sub">FCデッドストック 69,636千円 ／ 全社売上 86,747千円<br>商品は売れている。FCチャネルで売れていないだけ。</span></div>
+<div class="sp s2"><h3>A2｜FCでも全社でも売上ゼロ</h3><span class="big">83<span style="font-size:13px;font-weight:400">品番</span></span><span class="sub">FCデッドストック 15,265千円 ／ 全社売上 0<br>本当に「商品が悪い」と言えるのはここだけ。</span></div>
+</div>
+<div class="pull"><b>A分類345品番のうち262品番（76%）は、全社では売れていた。</b>金額にして全社86,747千円。真に商品側の問題と言えるのはA2の83品番・15,265千円にとどまり、しかもその大半も旧春夏繰越である。<b>「全店で売れなかった品番を27PS発注から外す」という当初の処方は、対象を取り違えていた。</b></div>
+</section>
+<section>
+<div class="shead"><span class="sidx">03</span><h2>27PS発注で持ち込む2つのリスト</h2></div>
+<p class="lede"><b>リスト1｜再発注しない候補（A2）。</b>3店以上に展開して、FCでも全社でも12〜2月に1枚も売れなかった品番。83品番・FCデッドストック15,265千円。売り方でも立地でもなく、商品そのものが動いていない。</p>
+<figure class="figure"><div class="scroll"><table>
+<thead><tr><th>商品名</th><th>ブランド</th><th>アイテム</th><th>世代</th><th>展開店数</th><th>FCデッドストック</th></tr></thead><tbody>
+<tr><td><b>ﾘﾈﾝﾎﾟﾌﾟﾘﾝ</b></td><td>GALERIE VIE</td><td>パンツ</td><td>旧PS/SS繰越</td><td class="n">5</td><td class="n">759</td></tr>
+<tr><td><b>ｸﾚｰﾌﾟｶﾞｰﾀﾌﾚ</b></td><td>GALERIE VIE</td><td>ニット</td><td>旧PS/SS繰越</td><td class="n">5</td><td class="n">624</td></tr>
+<tr><td><b>ﾐﾗﾉｼｮｰﾄｽﾘｰC</b></td><td>Ballsey</td><td>ニット</td><td>旧PS/SS繰越</td><td class="n">6</td><td class="n">608</td></tr>
+<tr><td><b>ｼｱｰｵｰﾊﾞﾙ</b></td><td>Ballsey</td><td>ジャケット</td><td>旧PS/SS繰越</td><td class="n">11</td><td class="n">578</td></tr>
+<tr><td><b>ﾋﾟｺﾛｰﾙｷﾞﾝｶﾞ</b></td><td>TML O</td><td>ワンピース</td><td>旧PS/SS繰越</td><td class="n">7</td><td class="n">500</td></tr>
+<tr><td><b>ﾌﾟﾚｰﾃｨﾝｸﾞｼﾞ</b></td><td>Ballsey</td><td>シャツ・ブラウス</td><td>旧PS/SS繰越</td><td class="n">9</td><td class="n">464</td></tr>
+<tr><td><b>ｻﾏｰｸﾞﾚﾝ</b></td><td>TML Collection</td><td>ジャケット</td><td>旧PS/SS繰越</td><td class="n">4</td><td class="n">384</td></tr>
+<tr><td><b>ﾘﾈﾝｵｯｸｽ</b></td><td>TML Collection</td><td>スカート</td><td>旧PS/SS繰越</td><td class="n">6</td><td class="n">374</td></tr>
+<tr><td><b>ﾌﾚﾝﾁﾘﾈﾝAﾗｲﾝ</b></td><td>GALERIE VIE</td><td>スカート</td><td>旧PS/SS繰越</td><td class="n">3</td><td class="n">360</td></tr>
+<tr><td><b>WASHI/W ｸﾙｰ</b></td><td>GALERIE VIE</td><td>ニット</td><td>25FW</td><td class="n">5</td><td class="n">308</td></tr>
+<tr><td><b>CLVｽﾄﾚｯﾁﾜｲﾄ</b></td><td>GALERIE VIE</td><td>パンツ</td><td>旧PS/SS繰越</td><td class="n">3</td><td class="n">301</td></tr>
+<tr><td><b>ﾌﾚﾝﾁﾘﾈﾝHS</b></td><td>GALERIE VIE</td><td>ジャケット</td><td>旧PS/SS繰越</td><td class="n">4</td><td class="n">301</td></tr>
+<tr><td><b>ﾌﾟﾛｾｽﾄﾞｺｯﾄﾝ</b></td><td>Ballsey</td><td>ワンピース</td><td>旧PS/SS繰越</td><td class="n">9</td><td class="n">300</td></tr>
+<tr><td><b>ﾋﾟｺﾛｰﾙｷﾞﾝｶﾞ</b></td><td>TML O</td><td>シャツ・ブラウス</td><td>旧PS/SS繰越</td><td class="n">7</td><td class="n">300</td></tr>
+</tbody></table></div><figcaption>FCデッドストック額の上位14品番（全83品番）。単位:千円</figcaption></figure>
+<p class="lede" style="margin-top:8px"><b>リスト2｜取りこぼし品番（B）。</b>B分類37,670千円は<b>39%が25FW・24%が26PS＝今期商品</b>で、A分類とは中身がまったく違う。しかも全社では大きく売れている品番が並ぶ。<b>会社が売れると証明した商品を、一部の店だけが1枚も売れていない。</b>発注ではなく売り方の損失であり、展示会で最優先すべきレビュー対象になる。</p>
+<figure class="figure"><div class="scroll"><table>
+<thead><tr><th>商品名</th><th>ブランド</th><th>世代</th><th>展開</th><th>全社売上</th><th>FCデッドストック</th><th style="text-align:left">売れなかった店</th></tr></thead><tbody>
+<tr><td><b>ﾘﾊﾞｰﾉｰｶﾗｰ</b></td><td>Ballsey</td><td>旧FW繰越</td><td class="n">15店</td><td class="n" style="color:var(--good);font-weight:700">60,797</td><td class="n">748</td><td style="text-align:left;white-space:normal;font-size:11.5px;color:var(--ink-2)">ながの東急・鳥取丸由</td></tr>
+<tr><td><b>2WAYｽﾄﾚｯﾁﾜｲ</b></td><td>Ballsey</td><td>旧FW繰越</td><td class="n">15店</td><td class="n" style="color:var(--good);font-weight:700">55,860</td><td class="n">36</td><td style="text-align:left;white-space:normal;font-size:11.5px;color:var(--ink-2)">東武宇都宮</td></tr>
+<tr><td><b>ｳｰﾙｶｼﾐﾔﾘﾊﾞｰ</b></td><td>Ballsey</td><td>旧FW繰越</td><td class="n">11店</td><td class="n" style="color:var(--good);font-weight:700">50,312</td><td class="n">456</td><td style="text-align:left;white-space:normal;font-size:11.5px;color:var(--ink-2)">前橋スズラン・宮崎山形屋</td></tr>
+<tr><td><b>ﾋﾟｭｱｶｼﾐﾔ</b></td><td>TML Collection</td><td>旧FW繰越</td><td class="n">13店</td><td class="n" style="color:var(--good);font-weight:700">46,228</td><td class="n">110</td><td style="text-align:left;white-space:normal;font-size:11.5px;color:var(--ink-2)">旭川フィール</td></tr>
+<tr><td><b>ｽｰﾊﾟｰｶｼﾐﾔ</b></td><td>TML Collection</td><td>旧FW繰越</td><td class="n">6店</td><td class="n" style="color:var(--good);font-weight:700">34,209</td><td class="n">270</td><td style="text-align:left;white-space:normal;font-size:11.5px;color:var(--ink-2)">鳥取丸由</td></tr>
+<tr><td><b>WﾌｪｲｽﾄﾚﾝﾁS</b></td><td>GALERIE VIE</td><td>25FW</td><td class="n">6店</td><td class="n" style="color:var(--good);font-weight:700">31,395</td><td class="n">400</td><td style="text-align:left;white-space:normal;font-size:11.5px;color:var(--ink-2)">鹿児島マルヤGV</td></tr>
+<tr><td><b>ﾗﾒMIXﾂｲｰﾄﾞ</b></td><td>Ballsey</td><td>旧PS/SS繰越</td><td class="n">14店</td><td class="n" style="color:var(--good);font-weight:700">28,294</td><td class="n">396</td><td style="text-align:left;white-space:normal;font-size:11.5px;color:var(--ink-2)">旭川フィール・東武宇都宮・郡山うすい</td></tr>
+<tr><td><b>ｳｪｰﾋﾞｰｶｼﾐﾔ</b></td><td>TML Collection</td><td>25FW</td><td class="n">8店</td><td class="n" style="color:var(--good);font-weight:700">24,556</td><td class="n">700</td><td style="text-align:left;white-space:normal;font-size:11.5px;color:var(--ink-2)">和歌山近鉄・盛岡川徳</td></tr>
+<tr><td><b>ｺｯﾄﾝｼﾙｸﾀｰﾄﾙ</b></td><td>Ballsey</td><td>旧FW繰越</td><td class="n">15店</td><td class="n" style="color:var(--good);font-weight:700">20,134</td><td class="n">99</td><td style="text-align:left;white-space:normal;font-size:11.5px;color:var(--ink-2)">和歌山近鉄</td></tr>
+<tr><td><b>ｽｰﾊﾟｰﾀﾞﾌﾞﾙﾌ</b></td><td>TML Collection</td><td>25FW</td><td class="n">10店</td><td class="n" style="color:var(--good);font-weight:700">18,813</td><td class="n">70</td><td style="text-align:left;white-space:normal;font-size:11.5px;color:var(--ink-2)">和歌山近鉄</td></tr>
+<tr><td><b>ﾌﾗｯﾄﾃｰﾌﾟ</b></td><td>TML Collection</td><td>26PS</td><td class="n">10店</td><td class="n" style="color:var(--good);font-weight:700">17,215</td><td class="n">24</td><td style="text-align:left;white-space:normal;font-size:11.5px;color:var(--ink-2)">TML福山</td></tr>
+<tr><td><b>Vｷﾞｬﾊﾞ WJK</b></td><td>MACPHEE</td><td>旧PS/SS繰越</td><td class="n">15店</td><td class="n" style="color:var(--good);font-weight:700">16,967</td><td class="n">352</td><td style="text-align:left;white-space:normal;font-size:11.5px;color:var(--ink-2)">そごう千葉・富山TML・盛岡川徳・郡山うすい・鳥取丸由</td></tr>
+<tr><td><b>WV Pｺｰﾄ</b></td><td>MACPHEE</td><td>25FW</td><td class="n">3店</td><td class="n" style="color:var(--good);font-weight:700">16,815</td><td class="n">21</td><td style="text-align:left;white-space:normal;font-size:11.5px;color:var(--ink-2)">旭川フィール</td></tr>
+<tr><td><b>ﾘﾊﾞｰｷﾙﾃｨﾝｸﾞ</b></td><td>Ballsey</td><td>26PS</td><td class="n">11店</td><td class="n" style="color:var(--good);font-weight:700">16,709</td><td class="n">15</td><td style="text-align:left;white-space:normal;font-size:11.5px;color:var(--ink-2)">富山TML</td></tr>
+<tr><td><b>ﾆｯﾄｺﾝﾋﾞﾄﾞﾛｽ</b></td><td>DES PRES</td><td>旧FW繰越</td><td class="n">5店</td><td class="n" style="color:var(--good);font-weight:700">16,617</td><td class="n">32</td><td style="text-align:left;white-space:normal;font-size:11.5px;color:var(--ink-2)">和歌山近鉄</td></tr>
+<tr><td><b>ｶﾊﾞｰﾄｸﾛｽ</b></td><td>TML Collection</td><td>旧PS/SS繰越</td><td class="n">13店</td><td class="n" style="color:var(--good);font-weight:700">15,051</td><td class="n">840</td><td style="text-align:left;white-space:normal;font-size:11.5px;color:var(--ink-2)">ながの東急・宮崎山形屋・川越丸広・高崎高島屋TML</td></tr>
+</tbody></table></div><figcaption>B分類のうち全社売上の大きい16品番（全292品番）。単位:千円</figcaption></figure>
+</section>
+<section>
+<div class="shead"><span class="sidx">04</span><h2>同じ時期に納品しても、冬物のほうが売れている</h2></div>
+<p class="lede">ここから視点を「何が残ったか」から「何が売れたか」に移す。納品時期の効果を除いて比べるため、<b>納品時期</b>（11〜12月まで／1〜2月）と<b>商品の性格</b>（冬物追いかけ／PS新規企画）の2軸で26PS発注を分けた。</p>
+<div class="quads">
+<div class="qc best"><h3>11〜12月までに納品 × 冬物追いかけ</h3><span class="big">54.0%</span><span class="sub">発注 35,804千円（構成28.4%）／売上 19,317千円</span></div>
+<div class="qc "><h3>11〜12月までに納品 × PS新規企画</h3><span class="big">48.3%</span><span class="sub">発注 23,702千円（構成18.8%）／売上 11,439千円</span></div>
+<div class="qc "><h3>1〜2月納品 × 冬物追いかけ</h3><span class="big">42.4%</span><span class="sub">発注 4,435千円（構成3.5%）／売上 1,880千円</span></div>
+<div class="qc worst"><h3>1〜2月納品 × PS新規企画</h3><span class="big">34.1%</span><span class="sub">発注 62,332千円（構成49.4%）／売上 21,245千円</span></div>
+</div>
+<div class="pull good"><b>早期納品どうしの比較が答えを出している。</b>11〜12月までに納品した中で、冬物追いかけは54.0%、PS新規企画は48.3%。納品時期を揃えても<b>冬物のほうが5.7ポイント高い</b>。12〜2月に店頭が求めているのは冬物だという、単純だが動かしがたい事実がここにある。四半期MTGで郡山・水戸が挙げた「冬物の追いかけ発注」、左上象限の「今、切れるか」という選定基準は、数字の上でも正しかった。</div>
+<figure class="figure"><div class="scroll"><table>
+<thead><tr><th>ブランド</th><th>発注額</th><th>構成</th><th>12〜2月売上</th><th>消化率</th><th>売上の12月比</th><th>主な発注コード</th></tr></thead><tbody>
+<tr><td><b>Ballsey</b></td><td class="n">51,647</td><td class="n">40.9%</td><td class="n">20,359</td><td class="n"><span class="">39.4%</span></td><td class="n">11%</td><td style="text-align:left"><span class="chip c61">61中心</span></td></tr>
+<tr><td><b>GALERIE VIE</b></td><td class="n">20,545</td><td class="n">16.3%</td><td class="n">11,856</td><td class="n"><span class="hi">57.7%</span></td><td class="n">63%</td><td style="text-align:left"><span class="chip c54">54中心（PS新規はゼロ）</span></td></tr>
+<tr><td><b>TML Collection</b></td><td class="n">19,670</td><td class="n">15.6%</td><td class="n">7,465</td><td class="n"><span class="">38.0%</span></td><td class="n">7%</td><td style="text-align:left"><span class="chip c61">61中心</span></td></tr>
+<tr><td><b>MACPHEE</b></td><td class="n">18,193</td><td class="n">14.4%</td><td class="n">9,732</td><td class="n"><span class="hi">53.5%</span></td><td class="n">16%</td><td style="text-align:left"><span class="chip c61">61中心＋54</span></td></tr>
+<tr><td><b>TML O</b></td><td class="n">11,777</td><td class="n">9.3%</td><td class="n">3,424</td><td class="n"><span class="lo">29.1%</span></td><td class="n">0%</td><td style="text-align:left"><span class="chip c61">61のみ</span></td></tr>
+<tr><td><b>SOULEIADO</b></td><td class="n">2,598</td><td class="n">2.1%</td><td class="n">0</td><td class="n"><span class="lo">0.0%</span></td><td class="n">0%</td><td style="text-align:left"><span class="chip c61">61のみ</span></td></tr>
+<tr><td><b>DES PRES</b></td><td class="n">1,843</td><td class="n">1.5%</td><td class="n">1,045</td><td class="n"><span class="hi">56.7%</span></td><td class="n">40%</td><td style="text-align:left"><span class="chip c54">54中心</span></td></tr>
+</tbody></table></div><figcaption>26PS展示会の発注をブランド別に集計。単位:千円</figcaption></figure>
+<div class="pull"><b>GALERIE VIEが例外的に強い理由は、買っている中身にある。</b>GVの26PS発注20,545千円は<b>100%がコード54＝冬物追いかけ</b>で、PS新規企画を1品も買っていない。結果、消化率57.7%・売上の63%が12月に立つ。12月に売れた品番の上位20のうち15品がGVだった。一方TML Oは61のみで29.1%、SOULEIADOは2,598千円を発注して売上ゼロ。</div>
+</section>
+<section>
+<div class="shead"><span class="sidx">05</span><h2>店舗差も、同じ軸で説明がつく</h2></div>
+<p class="lede">17店の消化率を、発注の中身と突き合わせた。<b>冬物コードの比率が高い店ほど消化率が高い</b>という関係が出る。4象限の在庫倍率よりも、この軸のほうが素直に効く。</p>
+<div class="corr">
+<div class="crow"><span>消化率 × <b>冬物コード（54等）の発注比率</b></span><span class="cv">+0.55</span><span class="ctrack"><i style="left:50%;width:27.450000000000003%;background:var(--good)"></i><span class="mid"></span></span></div>
+<div class="crow"><span>消化率 × <b>12月までの納品比率</b></span><span class="cv">+0.47</span><span class="ctrack"><i style="left:50%;width:23.549999999999997%;background:var(--good)"></i><span class="mid"></span></span></div>
+<div class="crow"><span>消化率 × <b>売上に占める12月の比率</b></span><span class="cv">+0.52</span><span class="ctrack"><i style="left:50%;width:26.200000000000003%;background:var(--good)"></i><span class="mid"></span></span></div>
+<div class="crow"><span>消化率 × <b>発注額の大きさ</b></span><span class="cv">-0.35</span><span class="ctrack"><i style="left:32.6%;width:17.4%;background:var(--bad)"></i><span class="mid"></span></span></div>
+</div>
+<p class="note">相関係数（n=17）。相関は因果ではなく、「冬物を多く買える店＝地域や客層が冬物を必要としている店」という交絡もありうる。ただし発注額との相関が負（r=−0.35）である点は、<b>量を増やすより中身と時期を変えるほうが効く</b>ことを示している。</p>
+<figure class="figure"><div class="scroll"><table>
+<thead><tr><th>店舗</th><th>象限</th><th>26PS発注額</th><th>12〜2月売上</th><th>消化率</th><th>冬物コード比</th><th>12月までの納品比</th><th>売上の12月比</th></tr></thead><tbody>
+<tr><td><b>富山TML</b></td><td><span class="chip q">右下</span></td><td class="n">5,679</td><td class="n">4,593</td><td class="n barc" style="--w:80.9%"><span class="hi">80.9%</span></td><td class="n">54.6%</td><td class="n">63.0%</td><td class="n">35.8%</td></tr>
+<tr><td><b>鹿児島マルヤGV</b></td><td><span class="chip q">右下</span></td><td class="n">2,103</td><td class="n">1,410</td><td class="n barc" style="--w:67.0%"><span class="hi">67.0%</span></td><td class="n">100.0%</td><td class="n">100.0%</td><td class="n">65.9%</td></tr>
+<tr><td><b>旭川フィール</b></td><td><span class="chip q">右下</span></td><td class="n">8,618</td><td class="n">5,163</td><td class="n barc" style="--w:59.9%"><span class="hi">59.9%</span></td><td class="n">20.0%</td><td class="n">34.2%</td><td class="n">18.2%</td></tr>
+<tr><td><b>鳥取丸由</b></td><td><span class="chip q">右上</span></td><td class="n">4,523</td><td class="n">2,638</td><td class="n barc" style="--w:58.3%"><span class="hi">58.3%</span></td><td class="n">14.2%</td><td class="n">33.9%</td><td class="n">10.1%</td></tr>
+<tr><td><b>TML福山</b></td><td><span class="chip q">右下</span></td><td class="n">5,330</td><td class="n">2,813</td><td class="n barc" style="--w:52.8%"><span class="">52.8%</span></td><td class="n">43.7%</td><td class="n">56.9%</td><td class="n">21.4%</td></tr>
+<tr><td><b>高崎高島屋DP</b></td><td><span class="chip q">右上</span></td><td class="n">781</td><td class="n">409</td><td class="n barc" style="--w:52.4%"><span class="">52.4%</span></td><td class="n">87.7%</td><td class="n">100.0%</td><td class="n">27.4%</td></tr>
+<tr><td><b>東武宇都宮</b></td><td><span class="chip q">左上</span></td><td class="n">8,900</td><td class="n">4,411</td><td class="n barc" style="--w:49.6%"><span class="">49.6%</span></td><td class="n">51.8%</td><td class="n">59.6%</td><td class="n">38.0%</td></tr>
+<tr><td><b>高崎高島屋TML</b></td><td><span class="chip q">右下</span></td><td class="n">6,734</td><td class="n">3,278</td><td class="n barc" style="--w:48.7%"><span class="">48.7%</span></td><td class="n">23.0%</td><td class="n">37.9%</td><td class="n">10.2%</td></tr>
+<tr><td><b>和歌山近鉄</b></td><td><span class="chip q">右上</span></td><td class="n">7,131</td><td class="n">3,404</td><td class="n barc" style="--w:47.7%"><span class="">47.7%</span></td><td class="n">25.3%</td><td class="n">40.4%</td><td class="n">21.4%</td></tr>
+<tr><td><b>そごう千葉</b></td><td><span class="chip q">左下</span></td><td class="n">13,950</td><td class="n">5,895</td><td class="n barc" style="--w:42.3%"><span class="">42.3%</span></td><td class="n">44.9%</td><td class="n">57.2%</td><td class="n">22.7%</td></tr>
+<tr><td><b>川越丸広</b></td><td><span class="chip q">左下</span></td><td class="n">5,002</td><td class="n">1,925</td><td class="n barc" style="--w:38.5%"><span class="">38.5%</span></td><td class="n">17.6%</td><td class="n">28.1%</td><td class="n">4.8%</td></tr>
+<tr><td><b>盛岡川徳</b></td><td><span class="chip q">左下</span></td><td class="n">9,406</td><td class="n">3,618</td><td class="n barc" style="--w:38.5%"><span class="">38.5%</span></td><td class="n">20.9%</td><td class="n">39.0%</td><td class="n">10.5%</td></tr>
+<tr><td><b>ながの東急</b></td><td><span class="chip q">左上</span></td><td class="n">5,535</td><td class="n">2,050</td><td class="n barc" style="--w:37.0%"><span class="">37.0%</span></td><td class="n">12.0%</td><td class="n">33.5%</td><td class="n">14.1%</td></tr>
+<tr><td><b>水戸京成</b></td><td><span class="chip q">左上</span></td><td class="n">19,598</td><td class="n">6,540</td><td class="n barc" style="--w:33.4%"><span class="lo">33.4%</span></td><td class="n">40.4%</td><td class="n">55.2%</td><td class="n">36.3%</td></tr>
+<tr><td><b>前橋スズラン</b></td><td><span class="chip q">左上</span></td><td class="n">5,308</td><td class="n">1,614</td><td class="n barc" style="--w:30.4%"><span class="lo">30.4%</span></td><td class="n">11.3%</td><td class="n">29.6%</td><td class="n">1.6%</td></tr>
+<tr><td><b>郡山うすい</b></td><td><span class="chip q">左上</span></td><td class="n">12,673</td><td class="n">3,302</td><td class="n barc" style="--w:26.1%"><span class="lo">26.1%</span></td><td class="n">22.4%</td><td class="n">45.5%</td><td class="n">12.5%</td></tr>
+<tr><td><b>宮崎山形屋</b></td><td><span class="chip q">左上</span></td><td class="n">5,002</td><td class="n">818</td><td class="n barc" style="--w:16.4%"><span class="lo">16.4%</span></td><td class="n">11.4%</td><td class="n">34.4%</td><td class="n">14.8%</td></tr>
+</tbody></table></div><figcaption>消化率＝12〜2月売上÷26PS発注額。冬物コード比＝コード61以外（54等）が発注額に占める割合。単位:千円</figcaption></figure>
+<div class="pull"><b>両端がわかりやすい。</b>鹿児島マルヤGVは発注100%が冬物コード・全量11月までの納品で消化率67.0%、売上の66%が12月。富山TMLは冬物コード54.6%・12月までの納品63.0%で消化率80.9%と全店1位。逆に宮崎山形屋は冬物コード11.4%で16.4%、前橋11.3%で30.4%、ながの東急12.0%で37.0%。<b>下位3店はいずれも冬物コード比が12%を切っている。</b></div>
+</section>
+<section>
+<div class="shead"><span class="sidx">06</span><h2>27PS展示会で何をするか</h2></div>
+<p class="lede">12〜2月の売上を上げるという一点に絞ると、打ち手は4つに整理できる。いずれも26PS実績の数字を根拠にしている。</p>
+<div class="acts">
+<div class="act"><span class="tag">打ち手1</span><h3>冬物追いかけ枠を、発注の3割まで引き上げる</h3><p>26PS実績では「11〜12月納品×冬物追いかけ」が消化率54.0%で最も効率が高く、発注構成は28.4%だった。ここを厚くするのが最も確実な増収策になる。GALERIE VIEはこれを100%実践して57.7%を出している。</p><p class="ev"><b>根拠：</b>1〜2月納品のPS新規（現状62,332千円・消化率34.1%）の15%をこの枠へ振り替えると売上+1,858千円、25%なら+3,096千円。全体消化率は42.7%→44.1〜45.1%。</p></div>
+<div class="act"><span class="tag">打ち手2</span><h3>コートとニットの枠を増やし、シャツを削る</h3><p>アイテム別の消化率はコート59.8%・ニット52.4%に対し、シャツ33.9%・スカート31.3%。ところが発注構成はシャツが19.1%と3番目に大きく、コートは11.1%しかない。売れるものに枠が付いておらず、売れないものに枠が付いている。</p><p class="ev"><b>根拠：</b>発注構成をコート11.1%→18%、シャツ19.1%→13%に組み替えるだけで、同じ発注額のまま消化率は約1.7ポイント動く計算になる。</p></div>
+<div class="act"><span class="tag">打ち手3</span><h3>1月納品を12月納品に寄せる</h3><p>発注の49.3%が1月納品に置かれている。商品が弱いのではなく、12〜2月という窓の中で売る時間が2ヶ月しかないことが響いている。同じ商品でも1ヶ月早く店頭に出れば、窓の中で売れる月が1つ増える。</p><p class="ev"><b>根拠：</b>月あたり消化率は12月納品18.2%・1月納品18.1%とほぼ同じ。つまり前倒しした1ヶ月分（発注額の約18%）がそのまま上乗せになる。</p></div>
+<div class="act"><span class="tag">打ち手4</span><h3>TML O・SOULEIADOの枠を見直す</h3><p>TML Oは11,777千円を発注して消化率29.1%、12月売上ゼロ。SOULEIADOは2,598千円を発注して12〜2月の売上がゼロだった。合わせて14,375千円、発注全体の11.4%がほぼ機能していない。</p><p class="ev"><b>根拠：</b>ただしTML Oは各店のMTGで「即完売する」「一目惚れで買われる」と評価が高い。この矛盾は品番単位の当たり外れが激しいためで、枠の削減ではなく<b>品番数を絞って厚く持つ</b>方向の検討が要る。</p></div>
+</div>
+</section>
+<section>
+<div class="shead"><span class="sidx">07</span><h2>展示会で確かめたい2つの仮説</h2></div>
+<p class="lede">数字だけでは決めきれず、店頭の実感と突き合わせて初めて答えが出る論点が2つある。どちらも発注額の大きいカテゴリーで、27PSの組み立てを左右する。</p>
+<div class="hyp">
+<div class="hcard"><span class="htag">仮説1｜ワンピース</span><h3>ワンピースは「量」ではなく「品番」が間違っている</h3><p>宮崎・川越では、マザーニーズのネイビーワンピースが「サイズ欠けで買えない」と機会損失として報告されている。一方でデータ上のワンピースはデッドストック率74%と全アイテム中で最も高く、在庫の4分の3が動いていない。<b>需要のあるワンピースと、店に置いているワンピースが別物である</b>という仮説が立つ。宮崎の「マザーニーズにセットアップ偏重」という指摘とも整合する。</p><p class="test"><b>展示会で確かめること：</b>売れたワンピース品番と、残ったワンピース品番を並べて、色・丈・素材・価格帯の違いを特定する。「ワンピースを何枚買うか」ではなく「どのワンピースを買うか」の議論に切り替える。</p></div>
+<div class="hcard"><span class="htag">仮説2｜ジャケット</span><h3>ジャケットは「多すぎる」のではなく「遅すぎる」</h3><p>ジャケットは26PS発注の<b>23.4%（29,590千円）</b>と最大の枠を占め、消化率は39.8%と平均を下回る。川越の「ツイードJK15品中11品は多すぎ」という現場感は、この数字と一致しているように見える。だが中身を開けると別の絵が出てくる。</p><p>第一に、<b>ジャケットの売上は12月15%・1月30%・2月55%</b>と2月に集中し、しかも加速している。12〜2月の窓では売り切れない商材である。第二に、<b>2月納品4,113千円の90%がジャケット</b>で、その消化率は13.9%。12月納品なら52.7%、1月納品なら38.5%まで上がる。<b>最大の枠を、最も売る時間が短い位置に置いている。</b></p><p>第三に、削るべき対象も現場感とずれる。ツイードは5,088千円で消化率53.5%——ジャケット平均39.8%を上回る。むしろ効いているのは価格で、<b>4万円未満は48.7%、6〜10万円は24.4%、10万円以上は19.8%</b>と単価が上がるほど落ちる。店の品番数と消化率には相関がない（r=+0.26）。</p><p class="test"><b>展示会で確かめること：</b>①ツイードを削る前に、<b>ジャケットの納品を1〜2月から12月へ動かせるか</b>を確認する。②6万円以上のジャケット（発注23.1%・消化率20〜24%）を絞り、4万円未満（消化率48.7%）に振り替えられるかを検討する。③ジャケットは3月にも売れる商材なので、<b>3月実績が出るまで「失敗」と判定しない</b>——高崎TMLがフラットテープジャケットを見送って後から問い合わせを受けた機会損失は、この判定ミスから起きている。</p></div>
+</div>
+<figure class="figure" style="margin-top:4px"><div class="scroll"><table>
+<thead><tr><th>ジャケットの切り口</th><th>発注額</th><th>構成</th><th>消化率</th><th>12月</th><th>1月</th><th>2月</th></tr></thead><tbody>
+<tr><td><b>納品｜11月まで</b></td><td class="n">2,827</td><td class="n">9.6%</td><td class="n"><span class="">42.9%</span></td><td class="n">57%</td><td class="n">41%</td><td class="n">2%</td></tr>
+<tr class="hl"><td><b>納品｜12月</b></td><td class="n">10,239</td><td class="n">34.6%</td><td class="n"><span class="hi">52.7%</span></td><td class="n">19%</td><td class="n">35%</td><td class="n">46%</td></tr>
+<tr><td><b>納品｜1月</b></td><td class="n">11,545</td><td class="n">39.0%</td><td class="n"><span class="">38.5%</span></td><td class="n">0%</td><td class="n">23%</td><td class="n">77%</td></tr>
+<tr><td><b>納品｜2月</b></td><td class="n">4,113</td><td class="n">13.9%</td><td class="n"><span class="lo">13.9%</span></td><td class="n">0%</td><td class="n">0%</td><td class="n">100%</td></tr>
+<tr class="hl"><td><b>価格｜4万円未満</b></td><td class="n">10,304</td><td class="n">34.8%</td><td class="n"><span class="">48.7%</span></td><td class="n">10%</td><td class="n">34%</td><td class="n">56%</td></tr>
+<tr><td><b>価格｜4〜6万円</b></td><td class="n">12,459</td><td class="n">42.1%</td><td class="n"><span class="">41.5%</span></td><td class="n">22%</td><td class="n">29%</td><td class="n">49%</td></tr>
+<tr><td><b>価格｜6〜10万円</b></td><td class="n">5,207</td><td class="n">17.6%</td><td class="n"><span class="lo">24.4%</span></td><td class="n">9%</td><td class="n">11%</td><td class="n">80%</td></tr>
+<tr><td><b>価格｜10万円以上</b></td><td class="n">1,620</td><td class="n">5.5%</td><td class="n"><span class="lo">19.8%</span></td><td class="n">0%</td><td class="n">56%</td><td class="n">44%</td></tr>
+</tbody></table></div><figcaption>26PS発注のジャケット29,590千円を納品月・価格帯で分解。構成はジャケット内の比率。12月/1月/2月は売上の月別構成。単位:千円</figcaption></figure>
+<div class="pull warn"><b>この分析の限界。</b>①26PS展示会品（コード61）の売上は12月2,616→1月10,502→2月28,623千円と右肩上がりで、3月にさらに伸びる可能性が高い。本来の売り期が3月にある品番を12〜2月だけで評価すると過小評価になる。ジャケットはとくにこの影響を受ける。②「打ち手1〜3」は12〜2月の売上を最大化する処方であって、3月を含む通期の粗利を最大化する処方とは限らない。③冬物コード比と消化率の相関は、地域の気候・客層による交絡を含む。<b>3月実績が出た時点で同じ突合を再実行し、この結論が持つかを確認する必要がある。</b></div>
+</section>
+<footer>データ出典：26PS展示会発注明細（3,553行・発注額126,273千円／FC17店）、26Q4期在庫明細（2025年12月〜2026年2月・SKU×店舗7,949件）、全店舗売上明細（全社全店・品番別）、27PS四半期MTG議事録。<br>突合は品番11桁×店舗。発注明細の12桁品番は先頭11桁で照合し、94%が売上データと一致した。<br>コード＝品番5〜6桁目。54＝25FW展示会、61＝26PS展示会の新規企画、44/34/24＝過去のFW展示会、51/41/31＝過去のPS展示会、52/42/32＝過去のSS展示会。ブランド＝品番上2桁、アイテム＝3〜4桁目。<br>金額はすべて千円。消化率＝12〜2月の店頭売上÷26PS展示会発注額。デッドストック＝12〜2月の3ヶ月間で売上ゼロかつ在庫が存在した品番×店舗。</footer>
+</div>
+</body>
+</html>
