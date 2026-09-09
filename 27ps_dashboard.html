@@ -470,10 +470,18 @@ function dc(id) { if(CHARTS[id]){CHARTS[id].destroy(); delete CHARTS[id];} }
 // ── Store / Metric ─────────────────────────────────
 function buildStore() {
   const sel = document.getElementById('storeSel');
-  STORES.forEach(s => {
+  // ?store= があれば「全店合計＋自店」のみを生成（他店は物理的に出さない）
+  const _sp = new URLSearchParams(location.search).get('store');
+  let _only = null;
+  if(_sp) {
+    _only = STORES.find(s => s === _sp) || STORES.find(s => s.includes(_sp));
+  }
+  const list = _only ? ['全店合計', _only] : STORES;
+  list.forEach(s => {
     const o = document.createElement('option');
     o.value = s; o.textContent = s; sel.appendChild(o);
   });
+  if(_only) { curStore = _only; sel.value = _only; }
 }
 function onStore() {
   curStore = document.getElementById('storeSel').value;
@@ -1472,22 +1480,13 @@ buildStackFilterPills();
   const tabParam   = params.get('tab');
 
   if(storeParam) {
-    // 完全一致 → 部分一致フォールバック
+    // buildStore() で既に「全店合計＋自店」に限定済み。念のため選択を確定。
     const match = STORES.find(s => s === storeParam)
                 || STORES.find(s => s.includes(storeParam));
     if(match) {
       curStore = match;
       const sel = document.getElementById('storeSel');
-      if(sel) {
-        // プルダウンを「全店合計」と「自店舗」のみに絞り込む
-        Array.from(sel.options).forEach(opt => {
-          if(opt.value !== '全店合計' && opt.value !== match) {
-            opt.style.display = 'none';
-            opt.disabled = true;
-          }
-        });
-        sel.value = match;
-      }
+      if(sel) sel.value = match;
     }
   }
   if(tabParam && ['overview','brand','item','product','table'].includes(tabParam)) {
